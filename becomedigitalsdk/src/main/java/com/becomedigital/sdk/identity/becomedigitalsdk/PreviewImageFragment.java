@@ -47,11 +47,12 @@ public class PreviewImageFragment extends Fragment {
     private SharedParameters.typeDocument typeDocument;
     private BDIVConfig config;
     private String selectedCountry,
-            selectedCountyCo2,
+            selectedCountyCo2 = "",
             urlVideoFile = "",
             urlDocFront = "",
             urlDocBack = "";
     private boolean isFront;
+    private boolean isSelfie;
     public PreviewImageFragment() {
         // Required empty public constructor
     }
@@ -71,19 +72,30 @@ public class PreviewImageFragment extends Fragment {
         super.onViewCreated (view, savedInstanceState);
         ((MainBDIV) getActivity ( )).changeColorToolbar (true);
         ImageView imgToPreview = getActivity ( ).findViewById (R.id.imgToPreview);
+        ImageView imgProgresssbar = getActivity().findViewById(R.id.imgProgressBarDoc);
         Bundle arguments = getArguments();
         if (arguments != null) {
             config = (BDIVConfig) arguments.getSerializable("config");
-            typeDocument = (SharedParameters.typeDocument) arguments.getSerializable("typeDocument");
+            if (arguments.containsKey("typeDocument"))
+                typeDocument = (SharedParameters.typeDocument) arguments.getSerializable("typeDocument");
             if (arguments.containsKey("urlVideoFile"))
                 urlVideoFile = arguments.getString("urlVideoFile");
-            selectedCountyCo2 = arguments.getString("selectedCountyCo2");
-            selectedCountry = arguments.getString("selectedCountry");
+            if (arguments.containsKey("selectedCountyCo2"))
+                selectedCountyCo2 = arguments.getString("selectedCountyCo2");
+            if (arguments.containsKey("selectedCountry"))
+                selectedCountry = arguments.getString("selectedCountry");
             if (arguments.containsKey("urlDocBack"))
                 urlDocBack = arguments.getString("urlDocBack");
             if (arguments.containsKey("urlDocFront"))
                 urlDocFront = arguments.getString("urlDocFront");
-            isFront = getArguments().getBoolean("isFront");
+            if (arguments.containsKey("isFront"))
+                isFront = getArguments().getBoolean("isFront");
+            if (arguments.containsKey("isSelfie"))
+                isSelfie = getArguments().getBoolean("isSelfie");
+
+        }
+        if(isSelfie){
+            imgProgresssbar.setVisibility(View.INVISIBLE);
         }
         btnIsOkImage = getActivity ( ).findViewById (R.id.btnOkImage);
         Button btnRetry = getActivity ( ).findViewById (R.id.btnRetry);
@@ -104,15 +116,27 @@ public class PreviewImageFragment extends Fragment {
 
             });
             btnIsOkImage.setOnClickListener (view12 -> {
-                if (getArguments ( ).getBoolean ("isFront")) {
-                    urlDocFront = pathToFile;
-                } else {
-                    urlDocBack = pathToFile;
+                if(isSelfie){
+                    ((MainBDIV) getActivity ( )).displayLoader (true );
+                    ((MainBDIV) getActivity ( )).facialAuth(config, pathToFile);
+                }else{
+                    if (getArguments ( ).getBoolean ("isFront")) {
+                        urlDocFront = pathToFile;
+                    } else {
+                        urlDocBack = pathToFile;
+                    }
+                    navigate ( );
                 }
-                navigate ( );
             });
 
     }
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        //Clear the Activity's bundle
+        outState.clear();
+    }
+
 
     private void navigate() {
         Bundle bundle = new Bundle ( );

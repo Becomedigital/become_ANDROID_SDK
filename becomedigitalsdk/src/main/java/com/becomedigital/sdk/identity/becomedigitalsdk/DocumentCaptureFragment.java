@@ -9,13 +9,8 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
-import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
 import android.graphics.ImageFormat;
 import android.graphics.Matrix;
-import android.graphics.Paint;
 import android.graphics.Point;
 import android.graphics.RectF;
 import android.graphics.SurfaceTexture;
@@ -32,21 +27,16 @@ import android.hardware.camera2.params.StreamConfigurationMap;
 import android.media.ExifInterface;
 import android.media.Image;
 import android.media.ImageReader;
-import android.media.MediaRecorder;
-import android.net.Uri;
 import android.os.Bundle;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
-
 import android.os.CountDownTimer;
 import android.os.Handler;
 import android.os.HandlerThread;
-import android.provider.MediaStore;
 import android.util.Log;
 import android.util.Size;
 import android.util.SparseIntArray;
@@ -62,14 +52,10 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-
 import com.becomedigital.sdk.identity.becomedigitalsdk.mediaRecorders.AutoFitTextureView;
 import com.becomedigital.sdk.identity.becomedigitalsdk.models.BDIVConfig;
 import com.becomedigital.sdk.identity.becomedigitalsdk.utils.SharedParameters;
-import com.bumptech.glide.Glide;
-
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -97,6 +83,7 @@ public class DocumentCaptureFragment extends Fragment
     private static final int REQUEST_CAMERA_PERMISSION = 1;
     private static final String FRAGMENT_DIALOG = "dialog";
     private TextView textTittleVideo;
+    private ImageView imgReferenceDocument;
     private static ImageButton btnCapture;
     private static DocumentCaptureFragment documentCaptureFragmentS;
     private CountDownTimer countDownTimerFadeImage;
@@ -108,6 +95,7 @@ public class DocumentCaptureFragment extends Fragment
             urlDocFront = "",
             urlDocBack = "";
     private static boolean isFront;
+    private static boolean isSelfie = false;
     static {
         ORIENTATIONS.append (Surface.ROTATION_0, 90);
         ORIENTATIONS.append (Surface.ROTATION_90, 0);
@@ -320,22 +308,27 @@ public class DocumentCaptureFragment extends Fragment
                     break;
                 }
                 case STATE_WAITING_LOCK: {
-                    Integer afState = result.get (CaptureResult.CONTROL_AF_STATE);
-                    if (afState == null) {
+                    if(isSelfie){
+                        mState = STATE_PICTURE_TAKEN;
                         captureStillPicture ( );
-                    } else if (CaptureResult.CONTROL_AF_STATE_FOCUSED_LOCKED == afState ||
-                            CaptureResult.CONTROL_AF_STATE_NOT_FOCUSED_LOCKED == afState) {
-                        // CONTROL_AE_STATE can be null on some devices
-                        Integer aeState = result.get (CaptureResult.CONTROL_AE_STATE);
-                        if (aeState == null ||
-                                aeState == CaptureResult.CONTROL_AE_STATE_CONVERGED) {
-                            mState = STATE_PICTURE_TAKEN;
-                            captureStillPicture ( );
-                        } else {
-                            runPrecaptureSequence ( );
-                        }
                     }else{
-                        Log.d(TAG, "Integer afState: " +  afState);
+                        Integer afState = result.get (CaptureResult.CONTROL_AF_STATE);
+                        if (afState == null) {
+                            captureStillPicture ( );
+                        } else if (CaptureResult.CONTROL_AF_STATE_FOCUSED_LOCKED == afState ||
+                                CaptureResult.CONTROL_AF_STATE_NOT_FOCUSED_LOCKED == afState) {
+                            // CONTROL_AE_STATE can be null on some devices
+                            Integer aeState = result.get (CaptureResult.CONTROL_AE_STATE);
+                            if (aeState == null ||
+                                    aeState == CaptureResult.CONTROL_AE_STATE_CONVERGED) {
+                                mState = STATE_PICTURE_TAKEN;
+                                captureStillPicture ( );
+                            } else {
+                                runPrecaptureSequence ( );
+                            }
+                        }else{
+//                        //Log.d(TAG, "Integer afState: " +  afState);
+                        }
                     }
                     break;
                 }
@@ -422,7 +415,7 @@ public class DocumentCaptureFragment extends Fragment
         } else if (notBigEnough.size ( ) > 0) {
             return Collections.max (notBigEnough, new DocumentCaptureFragment.CompareSizesByArea ( ));
         } else {
-            Log.e (TAG, "Couldn't find any suitable preview size");
+//            //Log.e (TAG, "Couldn't find any suitable preview size");
             return choices[0];
         }
     }
@@ -442,11 +435,17 @@ public class DocumentCaptureFragment extends Fragment
         String child = "";
         Bundle arguments = getArguments();
         if (arguments != null) {
-            isFront = getArguments().getBoolean("isFront");
             config = (BDIVConfig) arguments.getSerializable("config");
-            typeDocument = (SharedParameters.typeDocument) arguments.getSerializable("typeDocument");
-            selectedCountry =  arguments.getString("selectedCountry");
-            selectedCountyCo2 = arguments.getString("selectedCountyCo2");
+            if(arguments.containsKey("isFront"))
+                isFront = getArguments().getBoolean("isFront");
+            if(arguments.containsKey("isSelfie"))
+                isSelfie = getArguments().getBoolean("isSelfie");
+            if (arguments.containsKey("typeDocument"))
+                typeDocument = (SharedParameters.typeDocument) arguments.getSerializable("typeDocument");
+            if (arguments.containsKey("selectedCountry"))
+                selectedCountry =  arguments.getString("selectedCountry");
+            if (arguments.containsKey("selectedCountyCo2"))
+                selectedCountyCo2 = arguments.getString("selectedCountyCo2");
             if (arguments.containsKey("urlDocBack"))
                 urlDocBack = arguments.getString("urlDocBack");
             if (arguments.containsKey("urlDocFront"))
@@ -462,7 +461,6 @@ public class DocumentCaptureFragment extends Fragment
         mFile = new File (getActivity ( ).getExternalFilesDir (null), child);
     }
 
-    @SuppressLint("ClickableViewAccessibility")
     @Override
     public void onResume() {
         super.onResume ( );
@@ -478,8 +476,34 @@ public class DocumentCaptureFragment extends Fragment
         } else {
             mTextureView.setSurfaceTextureListener (mSurfaceTextureListener);
         }
-
         initialSetups ( );
+    }
+
+    @Override
+    public void onPause() {
+        closeCamera ( );
+        stopBackgroundThread ( );
+        if(!isSelfie){
+            countDownTimerFadeImage.cancel ( );
+
+        }
+        super.onPause ( );
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy ( );
+        if(!isSelfie) {
+            countDownTimerFadeImage.cancel();
+        }
+
+    }
+
+    @SuppressLint("ClickableViewAccessibility")
+    private void initialSetups() {
+        textTittleVideo = getActivity ( ).findViewById (R.id.textTittleVideo);
+        btnCapture = getActivity ( ).findViewById (R.id.btnCapture);
+        imgReferenceDocument = getActivity().findViewById(R.id.imgReferenceDocument);
         final Animation animScale = AnimationUtils.loadAnimation (getActivity ( ), R.anim.anim_scale);
 
         ImageView imgProgressVideo = getActivity ( ).findViewById (R.id.imgProgressVideo);
@@ -508,53 +532,41 @@ public class DocumentCaptureFragment extends Fragment
             return false;
         });
 
-        String documentFace;
         ImageView imgDocReference = getActivity ( ).findViewById (R.id.imgDocReference);
-        if (getArguments ( ).getBoolean ("isFront")) {
-            documentFace = getActivity ( ).getString (R.string.text_tittle_intro_doc_front);
-            if (typeDocument == SharedParameters.typeDocument.PASSPORT) {
-                imgDocReference.setImageResource (R.drawable.reference_capture_passport);
+
+
+        if(!isSelfie){
+            String documentFace;
+            if (getArguments ( ).getBoolean ("isFront")) {
+                documentFace = getActivity ( ).getString (R.string.text_tittle_intro_doc_front);
+                if (typeDocument == SharedParameters.typeDocument.PASSPORT) {
+                    imgDocReference.setImageResource (R.drawable.reference_capture_passport);
+                }
+            } else {
+                imgDocReference.setImageResource (R.drawable.reference_document_back);
+                documentFace = getActivity ( ).getString (R.string.text_tittle_intro_doc);
             }
-        } else {
-            imgDocReference.setImageResource (R.drawable.reference_document_back);
-            documentFace = getActivity ( ).getString (R.string.text_tittle_intro_doc);
+            imgDocReference.setVisibility (View.VISIBLE);
+            countDownTimerFadeImage = new CountDownTimer (3000, 1000) {
+                public void onTick(long millisUntilFinished) {
+                }
+
+                public void onFinish() {
+                    Animation animFadeOut = AnimationUtils.loadAnimation (getActivity ( ), R.anim.fade_out);
+                    imgDocReference.startAnimation (animFadeOut);
+                    imgDocReference.setVisibility (View.INVISIBLE);
+                }
+            }.start ( );
+            String selectedDocument = typeDocument == SharedParameters.typeDocument.LICENSE ? getActivity ( ).getString (R.string.text_license) : typeDocument == SharedParameters.typeDocument.PASSPORT ? getActivity ( ).getString (R.string.text_passport) : getActivity ( ).getString (R.string.text_dni_selec_document);
+            textTittleVideo.setTextSize (18);
+            textTittleVideo.setText (String.format ("%s\n %s\n %s", documentFace, selectedDocument, selectedCountry));
+        }else{
+            imgReferenceDocument.setImageResource(R.drawable.face_reference);
+            imgDocReference.setVisibility (View.INVISIBLE);
+            textTittleVideo.setText(R.string.text_tittle_selfie);
+            imgProgressVideo.setVisibility(View.INVISIBLE);
         }
-        imgDocReference.setVisibility (View.VISIBLE);
-        countDownTimerFadeImage = new CountDownTimer (3000, 1000) {
-            public void onTick(long millisUntilFinished) {
-            }
 
-            public void onFinish() {
-                Animation animFadeOut = AnimationUtils.loadAnimation (getActivity ( ), R.anim.fade_out);
-                imgDocReference.startAnimation (animFadeOut);
-                imgDocReference.setVisibility (View.INVISIBLE);
-            }
-        }.start ( );
-
-        String selectedDocument = typeDocument == SharedParameters.typeDocument.LICENSE ? getActivity ( ).getString (R.string.text_license) : typeDocument == SharedParameters.typeDocument.PASSPORT ? getActivity ( ).getString (R.string.text_passport) : getActivity ( ).getString (R.string.text_dni_selec_document);
-        textTittleVideo.setTextSize (18);
-        textTittleVideo.setText (String.format ("%s\n %s\n %s", documentFace, selectedDocument, selectedCountry));
-
-    }
-
-    @Override
-    public void onPause() {
-        closeCamera ( );
-        stopBackgroundThread ( );
-        countDownTimerFadeImage.cancel ( );
-        super.onPause ( );
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy ( );
-        countDownTimerFadeImage.cancel ( );
-
-    }
-
-    private void initialSetups() {
-        textTittleVideo = getActivity ( ).findViewById (R.id.textTittleVideo);
-        btnCapture = getActivity ( ).findViewById (R.id.btnCapture);
 
     }
 
@@ -584,7 +596,7 @@ public class DocumentCaptureFragment extends Fragment
 
                 // We don't use a front facing camera in this sample.
                 Integer facing = characteristics.get (CameraCharacteristics.LENS_FACING);
-                if (facing != null && facing == CameraCharacteristics.LENS_FACING_FRONT) {
+                if (facing != null && facing == (isSelfie ? CameraCharacteristics.LENS_FACING_BACK : CameraCharacteristics.LENS_FACING_FRONT)) {
                     continue;
                 }
 
@@ -598,7 +610,7 @@ public class DocumentCaptureFragment extends Fragment
                 Size largest = Collections.max (
                         Arrays.asList (map.getOutputSizes (ImageFormat.JPEG)),
                         new DocumentCaptureFragment.CompareSizesByArea ( ));
-                mImageReader = ImageReader.newInstance (1080, 720,
+                mImageReader = ImageReader.newInstance (1280, 720,
                         ImageFormat.JPEG, /*maxImages*/2);
                 mImageReader.setOnImageAvailableListener (
                         mOnImageAvailableListener, mBackgroundHandler);
@@ -623,7 +635,7 @@ public class DocumentCaptureFragment extends Fragment
                         }
                         break;
                     default:
-                        Log.e (TAG, "Display rotation is invalid: " + displayRotation);
+//                        //Log.e (TAG, "Display rotation is invalid: " + displayRotation);
                 }
 
                 Point displaySize = new Point ( );
@@ -923,7 +935,7 @@ public class DocumentCaptureFragment extends Fragment
                 public void onCaptureCompleted(@NonNull CameraCaptureSession session,
                                                @NonNull CaptureRequest request,
                                                @NonNull TotalCaptureResult result) {
-                    Log.d (TAG, mFile.toString ( ));
+//                    //Log.d (TAG, mFile.toString ( ));
                     unlockFocus ( );
                 }
             };
@@ -1020,6 +1032,7 @@ public class DocumentCaptureFragment extends Fragment
                 Bundle bundle = new Bundle ( );
                 bundle.putString ("pathImage", mFile.getPath ( ));
                 bundle.putBoolean ("isFront", isFront);
+                bundle.putBoolean ("isSelfie", isSelfie);
                 bundle.putString("selectedCountry",selectedCountry);
                 bundle.putString("selectedCountyCo2",selectedCountyCo2);
                 bundle.putSerializable("typeDocument",typeDocument);

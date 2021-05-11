@@ -118,11 +118,11 @@ public class SelecCountryFragment extends Fragment {
             public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
                 Object item = parent.getItemAtPosition (pos);
                 selectedCountry = item.toString ( );
-                Log.d (TAG, "selected item: " + item);
+//                //Log.d (TAG, "selected item: " + item);
                 Integer idInt = (int) (long) id;
                 Countries_DB countries_db = countriesView.getCountryCO2ById (String.valueOf (idInt), getActivity ());
                 selectedCountyCo2 = countries_db.getCo_3 ( );
-                Log.d (TAG, "selected item: " + item);
+                //Log.d (TAG, "selected item: " + item);
                 if (!item.equals (getString (R.string.select_text))) {
                     btnDNI.setEnabled (true);
                     btnLicense.setEnabled (true);

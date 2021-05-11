@@ -205,7 +205,7 @@ public class VideoRecorderFragment extends Fragment {
                 return size;
             }
         }
-        Log.e (TAG, "Couldn't find any suitable video size");
+        //Log.e (TAG, "Couldn't find any suitable video size");
         return choices[choices.length - 1];
     }
 
@@ -235,7 +235,7 @@ public class VideoRecorderFragment extends Fragment {
         if (bigEnough.size ( ) > 0) {
             return Collections.min (bigEnough, new CompareSizesByArea ( ));
         } else {
-            Log.e (TAG, "Couldn't find any suitable preview size");
+            //Log.e (TAG, "Couldn't find any suitable preview size");
             return choices[0];
         }
     }
@@ -282,18 +282,18 @@ public class VideoRecorderFragment extends Fragment {
     private void initCoundown() {
         countDownTimerRecord = new CountDownTimer (3000, 1000) {
             public void onTick(long millisUntilFinished) {
-                Log.d (TAG, "time to record video:" + millisUntilFinished);
+                //Log.d (TAG, "time to record video:" + millisUntilFinished);
             }
 
             public void onFinish() {
-                Log.d (TAG, "time: done");
+                //Log.d (TAG, "time: done");
                 startRecordingVideo ( );
                 recording = true;
             }
         }.start ( );
         countDownTimerGeneral = new CountDownTimer (11000, 1000) {
             public void onTick(long millisUntilFinished) {
-                Log.d (TAG, "time: " + millisUntilFinished);
+                //Log.d (TAG, "time: " + millisUntilFinished);
                 countdownToStart--;
                 if (countdownToStart <= 0) { // inicia la visualizacion de la cuenta regresiva de grabado
                     if (countdownRecording >= 0) {
@@ -311,7 +311,7 @@ public class VideoRecorderFragment extends Fragment {
             }
 
             public void onFinish() {
-                Log.d (TAG, "time: done");
+                //Log.d (TAG, "time: done");
                 try {
                     stopRecordingVideo ( );
                 } catch (Exception e) {
@@ -651,7 +651,7 @@ public class VideoRecorderFragment extends Fragment {
 
                 @Override
                 public void onConfigureFailed(@NonNull CameraCaptureSession cameraCaptureSession) {
-                    Log.e (TAG, "onConfigureFailed: Failed");
+                    //Log.e (TAG, "onConfigureFailed: Failed");
                 }
             }, mBackgroundHandler);
         } catch (CameraAccessException | IOException e) {

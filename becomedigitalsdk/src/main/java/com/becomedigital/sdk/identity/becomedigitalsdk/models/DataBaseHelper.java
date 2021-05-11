@@ -30,9 +30,9 @@ public class DataBaseHelper extends SQLiteOpenHelper {
             db.execSQL ("DROP TABLE IF EXISTS " + Countries_DB.TABLE_NAME);
             // create notes table
             db.execSQL (Countries_DB.CREATE_TABLE);
-            Log.d (TAG, "tabla countries creada con exito");
+            //Log.d (TAG, "tabla countries creada con exito");
         } catch (SQLException e) {
-            Log.d (TAG + "tb_SelectedCountries", e.getMessage ( ));
+            //Log.d (TAG + "tb_SelectedCountries", e.getMessage ( ));
         } finally {
             // close db connection
             db.close ( );
@@ -60,13 +60,13 @@ public class DataBaseHelper extends SQLiteOpenHelper {
             try {
                 id = db.insert (Countries_DB.TABLE_NAME, null, values);
             } catch (Exception e) {
-                Log.d ("Error in entity: ", e.getMessage ( ));
+                //Log.d ("Error in entity: ", e.getMessage ( ));
             }
 
-            Log.d (TAG, "pais " + Countries.getcountrie_name ( ) + " insertada con exito");
+            //Log.d (TAG, "pais " + Countries.getcountrie_name ( ) + " insertada con exito");
             // return newly inserted row id
         } catch (Exception e) {
-            Log.d (TAG, e.getMessage ( ));
+            //Log.d (TAG, e.getMessage ( ));
         } finally {
             // close db connection
             db.close ( );
@@ -106,14 +106,14 @@ public class DataBaseHelper extends SQLiteOpenHelper {
                             cursor.getString (cursor.getColumnIndex (Countries_DB.COLUMN_CO2)),
                             cursor.getString (cursor.getColumnIndex (Countries_DB.COLUMN_CO3))));
                 } catch (Exception e) {
-                    Log.e (TAG, "Error " + e.toString ( ));
+                    //Log.e (TAG, "Error " + e.toString ( ));
                 }
 
             }
-            Log.d (TAG, "paises obtenidas con exito");
+            //Log.d (TAG, "paises obtenidas con exito");
             // close the db connection
         } catch (Exception e) {
-            Log.d (TAG + "Error select table:", e.getMessage ( ));
+            //Log.d (TAG + "Error select table:", e.getMessage ( ));
             if (cursor != null)
                 cursor.close ( );
         } finally {
@@ -132,7 +132,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
             db.close ( );
             return true;
         } catch (SQLException e) {
-            Log.d (TAG, e.getMessage ( ));
+            //Log.d (TAG, e.getMessage ( ));
             return false;
         }
     }
@@ -152,9 +152,9 @@ public class DataBaseHelper extends SQLiteOpenHelper {
                 }
 
             }
-            Log.d (TAG, "chequeo exitoso");
+            //Log.d (TAG, "chequeo exitoso");
         } catch (SQLException e) {
-            Log.d ("Error en el contador:", e.getMessage ( ));
+            //Log.d ("Error en el contador:", e.getMessage ( ));
             if (cursor != null)
                 cursor.close ( );
         } finally {
@@ -198,10 +198,10 @@ public class DataBaseHelper extends SQLiteOpenHelper {
                         cursor.getString (cursor.getColumnIndex (Countries_DB.COLUMN_CO3)));
             }
 
-            Log.d (TAG, "pais obtenido con exito");
+            //Log.d (TAG, "pais obtenido con exito");
             // close the db connection
         } catch (Exception e) {
-            Log.d (TAG + "Error select table:", e.getMessage ( ));
+            //Log.d (TAG + "Error select table:", e.getMessage ( ));
             if (cursor != null)
                 cursor.close ( );
         } finally {
@@ -243,10 +243,10 @@ public class DataBaseHelper extends SQLiteOpenHelper {
             countries_db = new Countries_DB (cursor.getString (cursor.getColumnIndex (Countries_DB.COLUMN_COUNTRY_NAME)),
                     cursor.getString (cursor.getColumnIndex (Countries_DB.COLUMN_CO3)));
 
-            Log.d (TAG, "pais obtenido con exito");
+            //Log.d (TAG, "pais obtenido con exito");
             // close the db connection
         } catch (Exception e) {
-            Log.d (TAG + "Error select table:", e.getMessage ( ));
+            //Log.d (TAG + "Error select table:", e.getMessage ( ));
             if (cursor != null)
                 cursor.close ( );
         } finally {
@@ -288,10 +288,10 @@ public class DataBaseHelper extends SQLiteOpenHelper {
             countries_db = new Countries_DB (cursor.getString (cursor.getColumnIndex (Countries_DB.COLUMN_COUNTRY_NAME)),
                     cursor.getString (cursor.getColumnIndex (Countries_DB.COLUMN_CO3)));
 
-            Log.d (TAG, "pais obtenido con exito");
+            //Log.d (TAG, "pais obtenido con exito");
             // close the db connection
         } catch (Exception e) {
-            Log.d (TAG + "Error select table:", e.getMessage ( ));
+            //Log.d (TAG + "Error select table:", e.getMessage ( ));
             if (cursor != null)
                 cursor.close ( );
         } finally {
@@ -334,10 +334,10 @@ public class DataBaseHelper extends SQLiteOpenHelper {
             countries_db = new Countries_DB (cursor.getString (cursor.getColumnIndex (Countries_DB.COLUMN_COUNTRY_NAME)),
                     cursor.getString (cursor.getColumnIndex (Countries_DB.COLUMN_CO2)));
 
-            Log.d (TAG, "pais obtenido con exito");
+            //Log.d (TAG, "pais obtenido con exito");
             // close the db connection
         } catch (Exception e) {
-            Log.d (TAG + "Error select table:", e.getMessage ( ));
+            //Log.d (TAG + "Error select table:", e.getMessage ( ));
             if (cursor != null)
                 cursor.close ( );
         } finally {

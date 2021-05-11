@@ -31,6 +31,9 @@
             app:exitAnim="@anim/fragment_close_exit"
             app:popEnterAnim="@anim/nav_default_pop_enter_anim"
             app:popExitAnim="@anim/nav_default_pop_exit_anim" />
+        <action
+            android:id="@+id/goToTakeSelfie"
+            app:destination="@id/documentCaptureFragment" />
     </fragment>
     <fragment
         android:id="@+id/fragment_introduction_video"
@@ -124,6 +127,9 @@
             app:exitAnim="@anim/wait_anim"
             app:popEnterAnim="@anim/wait_anim"
             app:popExitAnim="@anim/slide_right_left" />
+        <action
+            android:id="@+id/actionFinishPicker"
+            app:destination="@id/finishFragment" />
 
     </fragment>
     <fragment

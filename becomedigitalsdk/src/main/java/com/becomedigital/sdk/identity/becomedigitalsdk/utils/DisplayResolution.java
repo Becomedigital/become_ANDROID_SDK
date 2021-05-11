@@ -34,7 +34,7 @@ public class DisplayResolution {
             height = display.getHeight();
         }
 
-        Log.d (TAG,"width: " + width + ", height: " + height);
+        //Log.d (TAG,"width: " + width + ", height: " + height);
         return new int[]{width,height};
 
     }

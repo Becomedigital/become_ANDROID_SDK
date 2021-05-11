@@ -65,11 +65,11 @@ public class FinishFragment extends Fragment {
             switch (event.getAction ( )) {
                 case MotionEvent.ACTION_DOWN:
                     getActivity ( ).runOnUiThread (() -> {
-                        ((MainBDIV) getActivity ( )).displayLoader ( );
+                        ((MainBDIV) getActivity ( )).displayLoader ( false);
                     });
                     break;
                 case MotionEvent.ACTION_UP:
-                    ((MainBDIV) getActivity ( )).addDataServer(config,typeDocument,urlDocFront,selectedCountyCo2,urlDocBack, urlVideoFile);;
+                    ((MainBDIV) getActivity ( )).addDataServer(config,typeDocument,urlDocFront,selectedCountyCo2,urlDocBack, urlVideoFile);
                     break;
             }
             return false;

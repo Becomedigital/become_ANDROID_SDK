@@ -6,12 +6,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Parcelable;
-import android.util.Log;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.animation.Animation;
@@ -20,7 +17,6 @@ import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.becomedigital.sdk.identity.becomedigitalsdk.callback.AsynchronousTask;
@@ -48,12 +44,14 @@ public class MainBDIV extends AppCompatActivity implements AsynchronousTask {
     private final int INITAUTHRESPONSE = 1;
     private final int ADDDATARESPONSE = 2;
     private final int USERRESPONSEINITIAL = 3;
+    private final int SENDFACIALAUTH = 4;
     private FrameLayout frameInit;
     private TextView textInfoServer;
     private String urlVGlobal;
     private boolean isHomeActivity = true;
     private CountDownTimer countdownToGetdata;
     private String access_token;
+    private ResponseIV responseIVAuth;
 
     public static Context getAppContext() {
         return mContext;
@@ -211,15 +209,13 @@ public class MainBDIV extends AppCompatActivity implements AsynchronousTask {
 
             if (transactionId == USERRESPONSEINITIAL) {
                 getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+                Animation animFadeOut = AnimationUtils.loadAnimation(this, R.anim.fade_out);
+                frameInit.startAnimation(animFadeOut);
+                frameInit.setVisibility(View.GONE);
                 if ((responseIV.getResponseStatus() == ResponseIV.SUCCES) ||
                         (responseIV.getResponseStatus() == ResponseIV.PENDING)) {
-                    mData.putExtra("ResponseIV", (Parcelable) responseIV);
-                    setResult(RESULT_OK, mData);
-                    finish();
-                } else if (responseIV.getResponseStatus() == ResponseIV.NOFOUND) {
-                    Animation animFadeOut = AnimationUtils.loadAnimation(this, R.anim.fade_out);
-                    frameInit.startAnimation(animFadeOut);
-                    frameInit.setVisibility(View.GONE);
+                    responseIVAuth = responseIV;
+                    goToTakeSelfie();
                 }
             }
 
@@ -232,7 +228,16 @@ public class MainBDIV extends AppCompatActivity implements AsynchronousTask {
                     setResultError(responseIV.getMessage());
                 }
             }
-            Log.d(TAG, responseIV.toString());
+
+            if (transactionId == SENDFACIALAUTH) {
+                if (responseIV.getResponseStatus() == ResponseIV.SUCCES) {
+                    mData.putExtra("ResponseIV", (Parcelable) responseIVAuth);
+                    setResult(RESULT_OK, mData);
+                    finish();
+                } else {
+                    setResultError(responseIV.getMessage());
+                }
+            }
         });
     }
 
@@ -248,11 +253,20 @@ public class MainBDIV extends AppCompatActivity implements AsynchronousTask {
         });
     }
 
-    public void displayLoader() {
+    private void goToTakeSelfie() {
+        Bundle bundle = new Bundle();
+        bundle.putBoolean("isFront", true);
+        bundle.putBoolean("isSelfie", true);
+        bundle.putBoolean("isVideoCapture", false);// salta a la captura
+        bundle.putSerializable("config", config);
+        findNavController(this, R.id.nav_host_fragment).navigate(R.id.goToTakeSelfie, bundle);
+    }
+
+    public void displayLoader(Boolean isSelfieLoader) {
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
                 WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
         frameInit.setVisibility(View.VISIBLE);
-        textInfoServer.setText(getString(R.string.text_info_upload));
+        textInfoServer.setText(isSelfieLoader ? getString(R.string.text_loader_selfie) : getString(R.string.text_info_upload));
     }
 
     public void addDataServer(BDIVConfig config,
@@ -265,12 +279,17 @@ public class MainBDIV extends AppCompatActivity implements AsynchronousTask {
         autService.addDataServer(this, config, typeDocument, urlDocFront, selectedCountyCo2.toUpperCase(), urlDocBack, urlVideo, access_token, this);
     }
 
+    public void facialAuth(BDIVConfig config,
+                              String urlSelfie) {
+        autService.facialAuth(this, config,urlSelfie, access_token, this);
+    }
+
     private void initCounDownGetData(final String urlGetData) {
         final int[] countTime = {0};
         final int[] countBefore = {10};
         countdownToGetdata = new CountDownTimer(160000, 1000) {
             public void onTick(long millisUntilFinished) {
-                Log.d(TAG, "time of the process: " + millisUntilFinished);
+//                //Log.d(TAG, "time of the process: " + millisUntilFinished);
                 countTime[0]++;
                 if (!isOkResponse && countTime[0] > countBefore[0]) {
                     countBefore[0] = countTime[0] + 10;
@@ -299,7 +318,7 @@ public class MainBDIV extends AppCompatActivity implements AsynchronousTask {
 
                     btnClose.setVisibility(View.VISIBLE);
                     btnClose.setOnClickListener(view -> setResultError("Time out"));
-                    Log.d(TAG, "time: done");
+//                    //Log.d(TAG, "time: done");
                 });
             }
         }.start();

@@ -105,7 +105,7 @@ public class MainActivity extends AppCompatActivity {
                             "\nresponseStatus: " + responseStatus;
 
                     textResponse.setText(textFinal);
-                    Log.d("responseIV", textFinal);
+//                    //Log.d("responseIV", textFinal);
                 }
 
                 @Override
@@ -117,7 +117,7 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onError(LoginError pLoginError) {
                     textResponse.setText(pLoginError.getMessage());
-                    Log.d("Error", pLoginError.getMessage());
+//                    //Log.d("Error", pLoginError.getMessage());
                 }
 
             });

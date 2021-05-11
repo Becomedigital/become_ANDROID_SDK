@@ -31,6 +31,7 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
+
 public class ValidateStatusRest {
     /* access modifiers changed from: private */
     public static final String TAG = ValidateStatusRest.class.getSimpleName();
@@ -38,6 +39,7 @@ public class ValidateStatusRest {
     private final int INITAUTHRESPONSE = 1;
     private final int ADDDATARESPONSE = 2;
     private final int USERRESPONSEINITIAL = 3;
+    private final int SENDFACIALAUTH = 4;
 
 
     public void getAuth(final Activity activity, String clientID, String clientSecret, final AsynchronousTask asynchronousTask) {
@@ -53,7 +55,7 @@ public class ValidateStatusRest {
                 json.put("client_secret", clientSecret);
 
                 String jsonString = json.toString();
-                Log.d("JSON SEND:", jsonString);
+//                //Log.d("JSON SEND:", jsonString);
                 RequestBody body = RequestBody.create(JSON, jsonString);
                 OkHttpClient client = new OkHttpClient.Builder()
                         .connectTimeout(activity.getResources().getInteger(R.integer.timeOut), TimeUnit.SECONDS)
@@ -109,7 +111,7 @@ public class ValidateStatusRest {
 
     public void addDataServer(final Activity activity,
                               BDIVConfig config,
-                              SharedParameters.typeDocument typeDocument ,
+                              SharedParameters.typeDocument typeDocument,
                               String urlDocFront,
                               String selectedCountyCo2,
                               String urlDocBack,
@@ -134,11 +136,10 @@ public class ValidateStatusRest {
                     isPassport = true;
                 }
                 RequestBody requestBody = null;
-                ContentResolver contentResolver = activity.getContentResolver();
                 if (containsVideo) {
-                    requestBody = addDocumentsAndVideo(isPassport,urlDocFront,config,selectedCountyCo2,urlDocBack,typeDocument,urlVideo);
+                    requestBody = addDocumentsAndVideo(isPassport, urlDocFront, config, selectedCountyCo2, urlDocBack, typeDocument, urlVideo);
                 } else {
-                    requestBody = addDocuments(isPassport,urlDocFront,config,selectedCountyCo2,urlDocBack,typeDocument);
+                    requestBody = addDocuments(isPassport, urlDocFront, config, selectedCountyCo2, urlDocBack, typeDocument);
                 }
 
 
@@ -219,7 +220,7 @@ public class ValidateStatusRest {
             requestBody = new MultipartBody.Builder()
                     .setType(MultipartBody.FORM)
                     .addFormDataPart("contract_id", config.getContractId())
-                    .addFormDataPart("user_id",  config.getUserId())
+                    .addFormDataPart("user_id", config.getUserId())
                     .addFormDataPart("country", selectedCountyCo2)
                     .addFormDataPart("file_type", "passport")
                     .addFormDataPart("document1", "document1.jpg", RequestBody.create(MediaType.parse("image/jpg"), document1))
@@ -233,7 +234,7 @@ public class ValidateStatusRest {
             requestBody = new MultipartBody.Builder()
                     .setType(MultipartBody.FORM)
                     .addFormDataPart("contract_id", config.getContractId())
-                    .addFormDataPart("user_id",  config.getUserId())
+                    .addFormDataPart("user_id", config.getUserId())
                     .addFormDataPart("country", selectedCountyCo2)
                     .addFormDataPart("file_type", fileType)
                     .addFormDataPart("document1",
@@ -246,6 +247,7 @@ public class ValidateStatusRest {
         }
         return requestBody;
     }
+
 
     private RequestBody addDocumentsAndVideo(Boolean isPassport,
                                              String urlDocFront,
@@ -261,7 +263,7 @@ public class ValidateStatusRest {
             requestBody = new MultipartBody.Builder()
                     .setType(MultipartBody.FORM)
                     .addFormDataPart("contract_id", config.getContractId())
-                    .addFormDataPart("user_id",  config.getUserId())
+                    .addFormDataPart("user_id", config.getUserId())
                     .addFormDataPart("country", selectedCountyCo2)
                     .addFormDataPart("file_type", "passport")
                     .addFormDataPart("video",
@@ -281,7 +283,7 @@ public class ValidateStatusRest {
             requestBody = new MultipartBody.Builder()
                     .setType(MultipartBody.FORM)
                     .addFormDataPart("contract_id", config.getContractId())
-                    .addFormDataPart("user_id",  config.getUserId())
+                    .addFormDataPart("user_id", config.getUserId())
                     .addFormDataPart("country", selectedCountyCo2)
                     .addFormDataPart("file_type", fileType)
                     .addFormDataPart("video",
@@ -329,85 +331,98 @@ public class ValidateStatusRest {
                             String jsonData = response.body().string();
                             JSONObject Jobject = new JSONObject(jsonData);
 
-                            if (Jobject.has("apimsg")) {
+                            if (response.code() == 404) {
                                 asynchronousTask.onReceiveResultsTransaction(new ResponseIV(ResponseIV.NOFOUND, Jobject.getString("apimsg")), isInitialValidation ? USERRESPONSEINITIAL : USERRESPONSE);
-                            } else if (Jobject.has("verification") &&
-                                    Jobject.has("media")) {
-                                JSONObject JobjectV = new JSONObject(Jobject.getString("verification"));
-                                JSONObject JobjectUA = new JSONObject();
-                                JSONObject JobjectR  = new JSONObject();
-                                JSONObject JobjectM = new JSONObject(Jobject.getString("media"));
-                                if (Jobject.has("userAgent")){
-                                    JobjectUA = new JSONObject(Jobject.getString("userAgent"));
-                                }
-                                if(Jobject.has("registry"))  {
-                                    JobjectR = new JSONObject(Jobject.getString("registry"));
-                                }
-                                if (JobjectV.has("verification_status")) {
-                                    if (JobjectV.getString("verification_status").equals("La verificacion tuvo un error")) {
-                                        asynchronousTask.onReceiveResultsTransaction(new ResponseIV(ResponseIV.ERROR, JobjectV.getString("verification_status")), isInitialValidation ? USERRESPONSEINITIAL : USERRESPONSE);
-                                    } else {
-                                        boolean face_match = false,
-                                                template = false,
-                                                alteration = false,
-                                                watch_list = false;
-                                        if (JobjectV.getString("verification_status").equals("completed")) {
-                                            if (!JobjectV.getString("face_match").equals("true"))
-                                                face_match = true;
-                                            if (!JobjectV.getString("template").equals("true"))
-                                                template = true;
-                                            if (!JobjectV.getString("alteration").equals("true"))
-                                                alteration = true;
-                                            if (!JobjectV.getString("watch_list").equals("true"))
-                                                watch_list = true;
-                                            JSONObject JComplyAdvantage = new JSONObject(Jobject.getString("comply_advantage"));
+                            } else if (response.code() == 200) {
+                                if (Jobject.has("verification") &&
+                                        Jobject.has("media")) {
+                                    JSONObject JobjectV = new JSONObject(Jobject.getString("verification"));
+                                    JSONObject JobjectUA = new JSONObject();
+                                    JSONObject JobjectR = new JSONObject();
+                                    JSONObject JobjectM = new JSONObject(Jobject.getString("media"));
+                                    if (Jobject.has("userAgent")) {
+                                        JobjectUA = new JSONObject(Jobject.getString("userAgent"));
+                                    }
+                                    if (Jobject.has("registry")) {
+                                        JobjectR = new JSONObject(Jobject.getString("registry"));
+                                    }
+                                    if (JobjectV.has("verification_status")) {
+                                        if (JobjectV.getString("verification_status").equals("La verificacion tuvo un error")) {
+                                            asynchronousTask.onReceiveResultsTransaction(new ResponseIV(ResponseIV.ERROR, JobjectV.getString("verification_status")), isInitialValidation ? USERRESPONSEINITIAL : USERRESPONSE);
+                                        } else {
+                                            if (JobjectV.getString("verification_status").equals("completed")) {
+                                                boolean face_match = false,
+                                                        template = false,
+                                                        alteration = false,
+                                                        watch_list = false;
 
-                                            ResponseIV responseIV = new ResponseIV(
-                                                    Jobject.getString("id"),
-                                                    Jobject.getString("created_at"),
-                                                    Jobject.getString("company"),
-                                                    Jobject.getString("fullname"),
-                                                    Jobject.getString("birth"),
-                                                    Jobject.getString("document_type"),
-                                                    Jobject.getString("document_number"),
-                                                    face_match,
-                                                    template,
-                                                    alteration,
-                                                    watch_list,
-                                                    JComplyAdvantage.getString("comply_advantage_result"),
-                                                    JComplyAdvantage.getString("comply_advantage_url"),
-                                                    JobjectV.getString("verification_status"),
-                                                    (JobjectUA.has("device_model") ? JobjectUA.getString("device_model") : ""),
-                                                    (JobjectUA.has("os_version") ? JobjectUA.getString("os_version") : ""),
-                                                    (JobjectUA.has("browser_major") ? JobjectUA.getString("browser_major") : ""),
-                                                    (JobjectUA.has("browser_version") ? JobjectUA.getString("browser_version") : ""),
-                                                    (JobjectUA.has("ua") ? JobjectUA.getString("ua") : ""),
-                                                    (JobjectUA.has("device_type") ? JobjectUA.getString("device_type") : ""),
-                                                    (JobjectUA.has("device_vendor") ? JobjectUA.getString("device_vendor") : ""),
-                                                    (JobjectUA.has("os_name") ? JobjectUA.getString("os_name") : ""),
-                                                    (JobjectUA.has("browser_name") ? JobjectUA.getString("browser_name") : ""),
-                                                    (JobjectR.has("issuePlace") ? JobjectR.getString("issuePlace") : ""),
-                                                    (JobjectR.has("emissionDate") ? JobjectR.getString("emissionDate") : ""),
-                                                    (JobjectR.has("ageRange") ? JobjectR.getString("ageRange") : ""),
-                                                    (JobjectR.has("savingAccountsCount") ? JobjectR.getInt("savingAccountsCount") : 0),
-                                                    (JobjectR.has("financialIndustryDebtsCount") ? JobjectR.getInt("financialIndustryDebtsCount") : 0),
-                                                    (JobjectR.has("solidarityIndustryDebtsCount") ? JobjectR.getInt("solidarityIndustryDebtsCount") : 0),
-                                                    (JobjectR.has("serviceIndustryDebtsCount") ? JobjectR.getInt("serviceIndustryDebtsCount") : 0),
-                                                    (JobjectR.has("commercialIndustryDebtsCount") ? JobjectR.getInt("commercialIndustryDebtsCount") : 0),
-                                                    (Jobject.has("ip") ? Jobject.getString("ip") : ""),
-                                                    (JobjectM.has("frontImgUrl") ? JobjectM.getString("frontImgUrl") : ""),
-                                                    (JobjectM.has("backImgUrl") ? JobjectM.getString("backImgUrl") : ""),
-                                                    (JobjectM.has("selfiImageUrl") ? JobjectM.getString("selfiImageUrl") : ""),
-                                                    "verification complete",
-                                                    ResponseIV.SUCCES
-                                            );
-                                            int responseType  = isInitialValidation ? USERRESPONSEINITIAL : USERRESPONSE;
-                                            asynchronousTask.onReceiveResultsTransaction(responseIV, responseType);
-                                        }else if(isInitialValidation && JobjectV.getString("verification_status").equals("pending")){
-                                            ResponseIV responseIV = new ResponseIV();
-                                            responseIV.setMessage(JobjectV.getString("verification_status"));
-                                            responseIV.setResponseStatus(ResponseIV.PENDING);
-                                            asynchronousTask.onReceiveResultsTransaction(responseIV, USERRESPONSEINITIAL);
+                                                if(Jobject.has("face_match")
+                                                && Jobject.has("template")
+                                                && Jobject.has("alteration")
+                                                && Jobject.has("watch_list") ){
+                                                    if (JobjectV.getBoolean("face_match"))
+                                                        face_match = true;
+                                                    if (JobjectV.getBoolean("template"))
+                                                        template = true;
+                                                    if (JobjectV.getBoolean("alteration"))
+                                                        alteration = true;
+                                                    if (JobjectV.getBoolean("watch_list"))
+                                                        watch_list = true;
+                                                }
+
+
+                                                JSONObject JComplyAdvantage = new JSONObject();
+                                                if (Jobject.has("usercomply_advantageAgent")) {
+                                                    JComplyAdvantage = new JSONObject(Jobject.getString("comply_advantage"));
+                                                }
+
+                                                ResponseIV responseIV = new ResponseIV(
+                                                        (Jobject.has("id") ? Jobject.getString("id") : ""),
+                                                        (Jobject.has("created_at") ? Jobject.getString("created_at") : ""),
+                                                        (Jobject.has("company") ? Jobject.getString("company") : ""),
+                                                        (Jobject.has("fullname") ? Jobject.getString("fullname") : ""),
+                                                        (Jobject.has("birth") ? Jobject.getString("birth") : ""),
+                                                        (Jobject.has("document_type") ? Jobject.getString("document_type") : ""),
+                                                        (Jobject.has("document_number") ? Jobject.getString("document_number") : ""),
+                                                        face_match,
+                                                        template,
+                                                        alteration,
+                                                        watch_list,
+                                                        (JComplyAdvantage.has("comply_advantage_result") ? JComplyAdvantage.getString("comply_advantage_result") : ""),
+                                                        (JComplyAdvantage.has("comply_advantage_url") ? JComplyAdvantage.getString("comply_advantage_url") : ""),
+                                                        JobjectV.getString("verification_status"),
+                                                        (JobjectUA.has("device_model") ? JobjectUA.getString("device_model") : ""),
+                                                        (JobjectUA.has("os_version") ? JobjectUA.getString("os_version") : ""),
+                                                        (JobjectUA.has("browser_major") ? JobjectUA.getString("browser_major") : ""),
+                                                        (JobjectUA.has("browser_version") ? JobjectUA.getString("browser_version") : ""),
+                                                        (JobjectUA.has("ua") ? JobjectUA.getString("ua") : ""),
+                                                        (JobjectUA.has("device_type") ? JobjectUA.getString("device_type") : ""),
+                                                        (JobjectUA.has("device_vendor") ? JobjectUA.getString("device_vendor") : ""),
+                                                        (JobjectUA.has("os_name") ? JobjectUA.getString("os_name") : ""),
+                                                        (JobjectUA.has("browser_name") ? JobjectUA.getString("browser_name") : ""),
+                                                        (JobjectR.has("issuePlace") ? JobjectR.getString("issuePlace") : ""),
+                                                        (JobjectR.has("emissionDate") ? JobjectR.getString("emissionDate") : ""),
+                                                        (JobjectR.has("ageRange") ? JobjectR.getString("ageRange") : ""),
+                                                        (JobjectR.has("savingAccountsCount") ? JobjectR.getInt("savingAccountsCount") : 0),
+                                                        (JobjectR.has("financialIndustryDebtsCount") ? JobjectR.getInt("financialIndustryDebtsCount") : 0),
+                                                        (JobjectR.has("solidarityIndustryDebtsCount") ? JobjectR.getInt("solidarityIndustryDebtsCount") : 0),
+                                                        (JobjectR.has("serviceIndustryDebtsCount") ? JobjectR.getInt("serviceIndustryDebtsCount") : 0),
+                                                        (JobjectR.has("commercialIndustryDebtsCount") ? JobjectR.getInt("commercialIndustryDebtsCount") : 0),
+                                                        (Jobject.has("ip") ? Jobject.getString("ip") : ""),
+                                                        (JobjectM.has("frontImgUrl") ? JobjectM.getString("frontImgUrl") : ""),
+                                                        (JobjectM.has("backImgUrl") ? JobjectM.getString("backImgUrl") : ""),
+                                                        (JobjectM.has("selfiImageUrl") ? JobjectM.getString("selfiImageUrl") : ""),
+                                                        "verification complete",
+                                                        ResponseIV.SUCCES
+                                                );
+                                                int responseType = isInitialValidation ? USERRESPONSEINITIAL : USERRESPONSE;
+                                                asynchronousTask.onReceiveResultsTransaction(responseIV, responseType);
+                                            } else if (isInitialValidation && JobjectV.getString("verification_status").equals("pending")) {
+                                                ResponseIV responseIV = new ResponseIV();
+                                                responseIV.setMessage(JobjectV.getString("verification_status"));
+                                                responseIV.setResponseStatus(ResponseIV.PENDING);
+                                                asynchronousTask.onReceiveResultsTransaction(responseIV, USERRESPONSEINITIAL);
+                                            }
                                         }
                                     }
                                 }
@@ -426,5 +441,103 @@ public class ValidateStatusRest {
             }
         });
     }
+
+    private RequestBody addSelfie(String urlSelfie,
+                                  BDIVConfig config) {
+        RequestBody requestBody;
+        document1 = new File(urlSelfie);
+        requestBody = new MultipartBody.Builder()
+                .setType(MultipartBody.FORM)
+                .addFormDataPart("user_id", config.getUserId())
+                .addFormDataPart("image", "image.jpg", RequestBody.create(MediaType.parse("image/jpg"), document1))
+                .build();
+
+        return requestBody;
+    }
+
+
+    public void facialAuth(final Activity activity,
+                           BDIVConfig config,
+                           String urlSelfie,
+                           String accesToken,
+                           final AsynchronousTask asynchronousTask) {
+        AsyncTask.execute(() -> {
+            try {
+                SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(activity); // get url
+                String serverUrl = preferences.getString(SharedParameters.URL_RE_VALIDATION, SharedParameters.url_re_validation);
+
+                RequestBody requestBody = addSelfie(urlSelfie, config);
+
+                OkHttpClient client = new OkHttpClient.Builder()
+                        .connectTimeout(activity.getResources().getInteger(R.integer.timeOut), TimeUnit.SECONDS)
+                        .readTimeout(activity.getResources().getInteger(R.integer.timeOut), TimeUnit.SECONDS)
+                        .writeTimeout(activity.getResources().getInteger(R.integer.timeOut), TimeUnit.SECONDS).build();
+
+                Request request = new Request.Builder()
+                        .header("Authorization", "Bearer " + accesToken)
+                        .url(serverUrl)
+                        .post(requestBody)
+                        .build();
+
+                Call call = client.newCall(request);
+
+                call.enqueue(new Callback() {
+                    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
+                    @Override
+                    public void onFailure(Call call, IOException e) {
+                        asynchronousTask.onErrorTransaction(e.getLocalizedMessage());
+                        e.printStackTrace();
+                    }
+
+                    @Override
+                    public void onResponse(Call call, Response response) throws IOException {
+                        try {
+                            String jsonData = response.body().string();
+                            JSONObject Jobject = new JSONObject(jsonData);
+                            if (response.code() == 404) {
+                                if (Jobject.has("error")) {
+                                    asynchronousTask.onReceiveResultsTransaction(new ResponseIV(ResponseIV.ERROR, Jobject.getString("error")), SENDFACIALAUTH);
+                                } else if (Jobject.has("detail")) {
+                                    asynchronousTask.onReceiveResultsTransaction(new ResponseIV(ResponseIV.ERROR, Jobject.getString("detail")), SENDFACIALAUTH);
+                                } else if (Jobject.has("description")) {
+                                    asynchronousTask.onReceiveResultsTransaction(new ResponseIV(ResponseIV.ERROR, Jobject.getString("description")), SENDFACIALAUTH);
+                                } else {
+                                    asynchronousTask.onReceiveResultsTransaction(new ResponseIV(ResponseIV.ERROR, Jobject.toString()), SENDFACIALAUTH);
+                                }
+                            } else if (response.code() == 200) {
+                                if (Jobject.has("detail")) {
+                                    asynchronousTask.onReceiveResultsTransaction(new ResponseIV(ResponseIV.ERROR, Jobject.getString("detail")), SENDFACIALAUTH);
+
+                                } else if (Jobject.has("result") &&
+                                        Jobject.has("confidence")) {
+
+                                    if (Jobject.getBoolean("result")) {
+                                        asynchronousTask.onReceiveResultsTransaction(new ResponseIV(ResponseIV.SUCCES, Jobject.getString("result")), SENDFACIALAUTH);
+
+                                    } else {
+                                        asynchronousTask.onReceiveResultsTransaction(new ResponseIV(ResponseIV.ERROR, "Resultado fallido, confidence: " + Jobject.getString("confidence")), SENDFACIALAUTH);
+                                    }
+                                } else {
+                                    asynchronousTask.onReceiveResultsTransaction(new ResponseIV(ResponseIV.ERROR, activity.getResources().getString(R.string.general_error)), SENDFACIALAUTH);
+                                }
+                            } else {
+                                asynchronousTask.onReceiveResultsTransaction(new ResponseIV(ResponseIV.ERROR, activity.getResources().getString(R.string.general_error)), SENDFACIALAUTH);
+                            }
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                            asynchronousTask.onErrorTransaction(e.getLocalizedMessage());
+                        }
+                    }
+                });
+
+
+            } catch (Exception e) {
+                asynchronousTask.onErrorTransaction(e.getLocalizedMessage());
+                e.printStackTrace();
+            }
+        });
+    }
+
 
 }
