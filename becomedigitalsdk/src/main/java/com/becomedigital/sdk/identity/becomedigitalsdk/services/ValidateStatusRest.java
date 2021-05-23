@@ -355,26 +355,26 @@ public class ValidateStatusRest {
                                             asynchronousTask.onReceiveResultsTransaction(new ResponseIV(ResponseIV.ERROR, JobjectV.getString("verification_status")), isInitialValidation ? USERRESPONSEINITIAL : USERRESPONSE);
                                         } else {
                                             if (JobjectV.getString("verification_status").equals("completed")) {
-                                                boolean face_match = true,
-                                                        template = true,
-                                                        alteration = true,
-                                                        watch_list = true;
+                                                boolean face_match = false,
+                                                        template = false,
+                                                        alteration = false,
+                                                        watch_list = false;
 
-                                                if (Jobject.has("face_match")) {
+                                                if (JobjectV.has("face_match")) {
                                                     if (JobjectV.getBoolean("face_match"))
-                                                        face_match = false;
+                                                        face_match = true;
                                                 }
                                                 if (Jobject.has("template")) {
                                                     if (JobjectV.getBoolean("template"))
-                                                        template = false;
+                                                        template = true;
                                                 }
-                                                if (Jobject.has("alteration")) {
+                                                if (JobjectV.has("alteration")) {
                                                     if (JobjectV.getBoolean("alteration"))
-                                                        alteration = false;
+                                                        alteration = true;
                                                 }
-                                                if (Jobject.has("watch_list")) {
+                                                if (JobjectV.has("watch_list")) {
                                                     if (JobjectV.getBoolean("watch_list"))
-                                                        watch_list = false;
+                                                        watch_list = true ;
                                                 }
 
                                                 JSONObject JComplyAdvantage = new JSONObject();
