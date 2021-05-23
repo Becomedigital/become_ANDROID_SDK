@@ -364,7 +364,7 @@ public class ValidateStatusRest {
                                                     if (JobjectV.getBoolean("face_match"))
                                                         face_match = true;
                                                 }
-                                                if (Jobject.has("template")) {
+                                                if (JobjectV.has("template")) {
                                                     if (JobjectV.getBoolean("template"))
                                                         template = true;
                                                 }
