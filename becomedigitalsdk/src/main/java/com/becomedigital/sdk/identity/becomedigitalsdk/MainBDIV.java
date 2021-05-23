@@ -28,6 +28,11 @@ import com.becomedigital.sdk.identity.becomedigitalsdk.utils.LoadCountries;
 import com.becomedigital.sdk.identity.becomedigitalsdk.utils.SharedParameters;
 import com.bumptech.glide.Glide;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.Map;
+
 import static androidx.navigation.Navigation.findNavController;
 
 public class MainBDIV extends AppCompatActivity implements AsynchronousTask {
@@ -45,6 +50,9 @@ public class MainBDIV extends AppCompatActivity implements AsynchronousTask {
     private final int ADDDATARESPONSE = 2;
     private final int USERRESPONSEINITIAL = 3;
     private final int SENDFACIALAUTH = 4;
+    private final int GETCONTRACT = 5;
+    private final int GETIMAGE = 6;
+
     private FrameLayout frameInit;
     private TextView textInfoServer;
     private String urlVGlobal;
@@ -53,9 +61,6 @@ public class MainBDIV extends AppCompatActivity implements AsynchronousTask {
     private String access_token;
     private ResponseIV responseIVAuth;
 
-    public static Context getAppContext() {
-        return mContext;
-    }
 
     private ImageButton imgBtnCancel;
     private ImageButton imgBtnBack;
@@ -180,6 +185,10 @@ public class MainBDIV extends AppCompatActivity implements AsynchronousTask {
         autService.getAuth(this, this.config.getClienId(), this.config.getClientSecret(), this);
     }
 
+    private void getContract() {
+        autService.getContract(this.config.getContractId(), access_token, this, this);
+    }
+
     //region server transactions
 
     private boolean isOkResponse = false;
@@ -198,9 +207,8 @@ public class MainBDIV extends AppCompatActivity implements AsynchronousTask {
                     isOkResponse = true;
                     getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
                     countdownToGetdata.cancel();
-                    mData.putExtra("ResponseIV", (Parcelable) responseIV);
-                    setResult(RESULT_OK, mData);
-                    finish();
+                    responseIVAuth = responseIV;
+                    getImages();
                 } else if (responseIV.getResponseStatus() == ResponseIV.ERROR) {
                     countdownToGetdata.cancel();
                     setResultError(responseIV.getMessage());
@@ -208,14 +216,23 @@ public class MainBDIV extends AppCompatActivity implements AsynchronousTask {
             }
 
             if (transactionId == USERRESPONSEINITIAL) {
-                getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
-                Animation animFadeOut = AnimationUtils.loadAnimation(this, R.anim.fade_out);
-                frameInit.startAnimation(animFadeOut);
-                frameInit.setVisibility(View.GONE);
-                if ((responseIV.getResponseStatus() == ResponseIV.SUCCES) ||
-                        (responseIV.getResponseStatus() == ResponseIV.PENDING)) {
-                    responseIVAuth = responseIV;
-                    goToTakeSelfie();
+
+                switch (responseIV.getResponseStatus()) {
+                    case ResponseIV.SUCCES:
+                        responseIVAuth = responseIV;
+                        getContract();
+                        break;
+                    case ResponseIV.NOFOUND:
+                        enableAppRemoveSpinner();
+                        break;
+                    case ResponseIV.PENDING:
+                        enableAppRemoveSpinner();
+                        returnResultSucces(responseIV);
+                        break;
+                    case ResponseIV.ERROR:
+                        enableAppRemoveSpinner();
+                        setResultError(responseIV.getMessage());
+                        break;
                 }
             }
 
@@ -231,14 +248,82 @@ public class MainBDIV extends AppCompatActivity implements AsynchronousTask {
 
             if (transactionId == SENDFACIALAUTH) {
                 if (responseIV.getResponseStatus() == ResponseIV.SUCCES) {
-                    mData.putExtra("ResponseIV", (Parcelable) responseIVAuth);
-                    setResult(RESULT_OK, mData);
-                    finish();
+                    getImages();
                 } else {
                     setResultError(responseIV.getMessage());
                 }
             }
         });
+    }
+
+    private void enableAppRemoveSpinner() {
+        runOnUiThread(() -> {
+            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+            Animation animFadeOut = AnimationUtils.loadAnimation(this, R.anim.fade_out);
+            frameInit.startAnimation(animFadeOut);
+            frameInit.setVisibility(View.GONE);
+        });
+    }
+
+    @Override
+    public void onReceiveResultsTransactionDictionary(Map<String, Object> map, int responseStatus, int transactionId) {
+        if (transactionId == GETCONTRACT) {
+            if (responseStatus == ResponseIV.ERROR) {
+                setResultError((String) map.get("mensaje"));
+            } else {
+                boolean canUseOnexOne = (boolean) map.get("canUseOnexOne");
+                int countIsOnexOne = (int) map.get("countIsOnexOne");
+                int maxIsOnexOne = (int) map.get("maxIsOnexOne");
+                if (countIsOnexOne <= maxIsOnexOne) {
+                    if (canUseOnexOne) {
+                        enableAppRemoveSpinner();
+                        goToTakeSelfie();
+                    } else {
+                        getImages();
+                    }
+                } else {
+                    setResultError(getString(R.string.text_empty_balance));
+                }
+            }
+        }
+
+        if (transactionId == GETIMAGE) {
+            if (responseStatus == ResponseIV.ERROR) {
+                setResultError((String) map.get("mensaje"));
+            } else {
+                byte[] imageData = (byte[]) map.get("dataResponse");
+                String name = (String) map.get("name");
+
+                switch (name) {
+                    case "backImg":
+                        responseIVAuth.setBackImgUrlLocal(saveFile(name, imageData));
+                        if (!responseIVAuth.getFrontImgUrl().isEmpty()) {
+                            autService.getImage(responseIVAuth.getFrontImgUrl(), access_token, "frontImg", this, MainBDIV.this);
+
+                        } else if (!responseIVAuth.getSelfiImageUrl().isEmpty()) {
+                            autService.getImage(responseIVAuth.getSelfiImageUrl(), access_token, "selfieImage", this, MainBDIV.this);
+
+                        } else {
+                            returnResultSucces(responseIVAuth);
+                        }
+                        break;
+                    case "frontImg":
+                        responseIVAuth.setFrontImgUrlLocal(saveFile(name, imageData));
+                        if (!responseIVAuth.getSelfiImageUrl().isEmpty()) {
+                            autService.getImage(responseIVAuth.getSelfiImageUrl(), access_token, "selfieImage", this, MainBDIV.this);
+                        } else {
+                            returnResultSucces(responseIVAuth);
+                        }
+                        break;
+                    case "selfieImage":
+                        responseIVAuth.setSelfiImageUrlLocal(saveFile(name, imageData));
+                        returnResultSucces(responseIVAuth);
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
     }
 
     @Override
@@ -247,9 +332,7 @@ public class MainBDIV extends AppCompatActivity implements AsynchronousTask {
             getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
             if (countdownToGetdata != null)
                 countdownToGetdata.cancel();
-            mData.putExtra(KEY_ERROR, errorMsn);
-            setResult(RESULT_FIRST_USER, mData);
-            finish();
+            setResultError(errorMsn);
         });
     }
 
@@ -261,6 +344,43 @@ public class MainBDIV extends AppCompatActivity implements AsynchronousTask {
         bundle.putSerializable("config", config);
         findNavController(this, R.id.nav_host_fragment).navigate(R.id.goToTakeSelfie, bundle);
     }
+
+    private void getImages() {
+        if (!responseIVAuth.getBackImgUrl().isEmpty()) {
+            autService.getImage(responseIVAuth.getBackImgUrl(), access_token, "backImg", this, MainBDIV.this);
+        } else if (!responseIVAuth.getFrontImgUrl().isEmpty()) {
+            autService.getImage(responseIVAuth.getFrontImgUrl(), access_token, "frontImg", this, MainBDIV.this);
+        } else if (!responseIVAuth.getSelfiImageUrl().isEmpty()) {
+            autService.getImage(responseIVAuth.getSelfiImageUrl(), access_token, "selfieImage", this, MainBDIV.this);
+        } else {
+            returnResultSucces(responseIVAuth);
+        }
+    }
+
+    private String saveFile(String name, byte[] dataImage){
+        String child = name + ".jpg";
+        File mFile = new File(getExternalFilesDir (null), child);
+        if (mFile.exists ( )) {
+            mFile.delete ( );
+        }
+        FileOutputStream output = null;
+        try {
+            output = new FileOutputStream (mFile);
+            output.write (dataImage);
+        } catch (IOException e) {
+            setResultError (e.getLocalizedMessage ( ));
+        } finally {
+            if (null != output) {
+                try {
+                    output.close ( );
+                } catch (IOException e) {
+                    setResultError (e.getLocalizedMessage ( ));
+                }
+            }
+        }
+        return mFile.getPath ( );
+    }
+
 
     public void displayLoader(Boolean isSelfieLoader) {
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
@@ -280,14 +400,14 @@ public class MainBDIV extends AppCompatActivity implements AsynchronousTask {
     }
 
     public void facialAuth(BDIVConfig config,
-                              String urlSelfie) {
-        autService.facialAuth(this, config,urlSelfie, access_token, this);
+                           String urlSelfie) {
+        autService.facialAuth(this, config, urlSelfie, access_token, this);
     }
 
     private void initCounDownGetData(final String urlGetData) {
         final int[] countTime = {0};
         final int[] countBefore = {10};
-        countdownToGetdata = new CountDownTimer(160000, 1000) {
+        countdownToGetdata = new CountDownTimer(190000, 1000) {
             public void onTick(long millisUntilFinished) {
 //                //Log.d(TAG, "time of the process: " + millisUntilFinished);
                 countTime[0]++;
@@ -327,7 +447,14 @@ public class MainBDIV extends AppCompatActivity implements AsynchronousTask {
     //endregion
 
     //region app response
-    /* access modifiers changed from: protected */
+
+    private void returnResultSucces(ResponseIV responseIV) {
+        enableAppRemoveSpinner();
+        mData.putExtra("ResponseIV", (Parcelable) responseIV);
+        setResult(RESULT_OK, mData);
+        finish();
+    }
+
     public void onActivityResult(int i, int i2, Intent intent) {
         this.mCallbackManager.onActivityResult(i, i2, intent);
         super.onActivityResult(i, i2, intent);

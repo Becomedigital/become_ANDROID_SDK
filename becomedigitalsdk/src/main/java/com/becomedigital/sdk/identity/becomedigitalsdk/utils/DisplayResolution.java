@@ -79,7 +79,7 @@ public class DisplayResolution {
                 }
             }
         } catch (IOException e) {
-            e.printStackTrace ( );
+            // e.printStackTrace(); ( );
         }
 
         return rotationDegrees;

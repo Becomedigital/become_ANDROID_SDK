@@ -122,6 +122,7 @@
         app:layout_constraintTop_toBottomOf="@+id/imgReferenceDocument"
         app:srcCompat="@drawable/capturebtn"
         tools:ignore="ContentDescription" />
+
     <ImageView
         android:id="@+id/imgProgressVideo"
         android:layout_width="match_parent"

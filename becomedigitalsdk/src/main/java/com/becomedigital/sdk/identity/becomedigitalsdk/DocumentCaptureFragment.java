@@ -686,9 +686,9 @@ public class DocumentCaptureFragment extends Fragment
             }
         } catch (CameraAccessException e) {
             ((MainBDIV) documentCaptureFragmentS.getActivity ( )).setResultError (e.getLocalizedMessage ( ));
-            e.printStackTrace ( );
+            // e.printStackTrace(); ( );
         } catch (NullPointerException e) {
-            e.printStackTrace ( );
+            // e.printStackTrace(); ( );
         }
     }
 
@@ -711,7 +711,7 @@ public class DocumentCaptureFragment extends Fragment
             }
             manager.openCamera (mCameraId, mStateCallback, mBackgroundHandler);
         } catch (CameraAccessException e) {
-            e.printStackTrace ( );
+            // e.printStackTrace(); ( );
             ((MainBDIV) documentCaptureFragmentS.getActivity ( )).setResultError (e.getLocalizedMessage ( ));
         } catch (InterruptedException e) {
             throw new RuntimeException ("Interrupted while trying to lock camera opening.", e);
@@ -762,7 +762,7 @@ public class DocumentCaptureFragment extends Fragment
             mBackgroundThread = null;
             mBackgroundHandler = null;
         } catch (InterruptedException e) {
-            e.printStackTrace ( );
+            // e.printStackTrace(); ( );
         }
     }
 
@@ -810,7 +810,7 @@ public class DocumentCaptureFragment extends Fragment
                                 mCaptureSession.setRepeatingRequest (mPreviewRequest,
                                         mCaptureCallback, mBackgroundHandler);
                             } catch (CameraAccessException e) {
-                                e.printStackTrace ( );
+                                // e.printStackTrace(); ( );
                             }
                         }
 
@@ -823,7 +823,7 @@ public class DocumentCaptureFragment extends Fragment
             );
         } catch (CameraAccessException e) {
             ((MainBDIV) getActivity ( )).setResultError (e.getLocalizedMessage ( ));
-            e.printStackTrace ( );
+            // e.printStackTrace(); ( );
         }
     }
 
@@ -880,7 +880,7 @@ public class DocumentCaptureFragment extends Fragment
             mCaptureSession.capture (mPreviewRequestBuilder.build ( ), mCaptureCallback,
                     mBackgroundHandler);
         } catch (CameraAccessException e) {
-            e.printStackTrace ( );
+            // e.printStackTrace(); ( );
         }
     }
 
@@ -899,7 +899,7 @@ public class DocumentCaptureFragment extends Fragment
                     mBackgroundHandler);
         } catch (CameraAccessException e) {
             ((MainBDIV) getActivity ( )).setResultError (e.getLocalizedMessage ( ));
-            e.printStackTrace ( );
+            // e.printStackTrace(); ( );
         }
     }
 
@@ -945,7 +945,7 @@ public class DocumentCaptureFragment extends Fragment
             mCaptureSession.capture (captureBuilder.build ( ), CaptureCallback, null);
         } catch (CameraAccessException e) {
             ((MainBDIV) getActivity ( )).setResultError (e.getLocalizedMessage ( ));
-            e.printStackTrace ( );
+            // e.printStackTrace(); ( );
         }
     }
 
@@ -980,7 +980,7 @@ public class DocumentCaptureFragment extends Fragment
             mCaptureSession.setRepeatingRequest (mPreviewRequest, mCaptureCallback,
                     mBackgroundHandler);
         } catch (CameraAccessException e) {
-            e.printStackTrace ( );
+            // e.printStackTrace(); ( );
         }
     }
 
@@ -1045,14 +1045,15 @@ public class DocumentCaptureFragment extends Fragment
                 findNavController (documentCaptureFragmentS.getActivity ( ), R.id.nav_host_fragment).navigate (R.id.actionPreviewImage, bundle);
             } catch (IOException e) {
                 ((MainBDIV) documentCaptureFragmentS.getActivity ( )).setResultError (e.getLocalizedMessage ( ));
-                e.printStackTrace ( );
+                // e.printStackTrace(); ( );
             } finally {
                 mImage.close ( );
                 if (null != output) {
                     try {
                         output.close ( );
                     } catch (IOException e) {
-                        e.printStackTrace ( );
+                        ((MainBDIV) documentCaptureFragmentS.getActivity ( )).setResultError (e.getLocalizedMessage ( ));
+                        // e.printStackTrace(); ( );
                     }
                 }
             }

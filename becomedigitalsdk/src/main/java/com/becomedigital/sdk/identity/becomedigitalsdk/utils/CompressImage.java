@@ -117,7 +117,7 @@ public class CompressImage {
                     scaledBitmap.getWidth ( ), scaledBitmap.getHeight ( ), matrix,
                     true);
         } catch (IOException e) {
-            e.printStackTrace ( );
+            // e.printStackTrace(); ( );
         }
 
         FileOutputStream out = null;
@@ -129,7 +129,7 @@ public class CompressImage {
             scaledBitmap.compress (Bitmap.CompressFormat.JPEG, 80, out);
 
         } catch (FileNotFoundException e) {
-            e.printStackTrace ( );
+            // e.printStackTrace(); ( );
         }
 
         return filename;
@@ -280,7 +280,7 @@ public class CompressImage {
                     scaledBitmap.getWidth ( ), scaledBitmap.getHeight ( ), matrix,
                     true);
         } catch (IOException e) {
-            e.printStackTrace ( );
+            // e.printStackTrace(); ( );
         }
 
         FileOutputStream out = null;
@@ -292,7 +292,7 @@ public class CompressImage {
             scaledBitmap.compress (Bitmap.CompressFormat.JPEG, 80, out);
 
         } catch (FileNotFoundException e) {
-            e.printStackTrace ( );
+            // e.printStackTrace(); ( );
         }
 
         return filename;
@@ -310,7 +310,7 @@ public class CompressImage {
                 int index = cursor.getColumnIndex (MediaStore.Images.ImageColumns.DATA);
                 return cursor.getString (index);
             }catch (Exception e){
-                e.printStackTrace ( );
+                // e.printStackTrace(); ( );
                 return "";
             }
         }

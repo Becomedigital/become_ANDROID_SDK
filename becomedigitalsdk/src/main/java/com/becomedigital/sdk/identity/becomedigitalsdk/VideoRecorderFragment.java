@@ -315,7 +315,7 @@ public class VideoRecorderFragment extends Fragment {
                 try {
                     stopRecordingVideo ( );
                 } catch (Exception e) {
-                    e.printStackTrace ( );
+                    // e.printStackTrace(); ( );
                 }
                 recording = false;
                 Bundle bundle = new Bundle ( );
@@ -386,7 +386,7 @@ public class VideoRecorderFragment extends Fragment {
             mBackgroundThread = null;
             mBackgroundHandler = null;
         } catch (InterruptedException e) {
-            e.printStackTrace ( );
+            // e.printStackTrace(); ( );
         }
     }
 
@@ -488,7 +488,7 @@ public class VideoRecorderFragment extends Fragment {
                         }
                     }, mBackgroundHandler);
         } catch (CameraAccessException e) {
-            e.printStackTrace ( );
+            // e.printStackTrace(); ( );
         }
     }
 
@@ -505,7 +505,7 @@ public class VideoRecorderFragment extends Fragment {
             thread.start ( );
             mPreviewSession.setRepeatingRequest (mPreviewBuilder.build ( ), null, mBackgroundHandler);
         } catch (CameraAccessException e) {
-            e.printStackTrace ( );
+            // e.printStackTrace(); ( );
         }
     }
 
@@ -655,9 +655,9 @@ public class VideoRecorderFragment extends Fragment {
                 }
             }, mBackgroundHandler);
         } catch (CameraAccessException | IOException e) {
-            e.printStackTrace ( );
+            // e.printStackTrace(); ( );
         } catch (Exception e) {
-            e.printStackTrace ( );
+            // e.printStackTrace(); ( );
         }
 
     }
@@ -676,7 +676,7 @@ public class VideoRecorderFragment extends Fragment {
             mPreviewSession.stopRepeating ( );
             mPreviewSession.abortCaptures ( );
         } catch (CameraAccessException e) {
-            e.printStackTrace ( );
+            // e.printStackTrace(); ( );
         }
 
         // Stop recording

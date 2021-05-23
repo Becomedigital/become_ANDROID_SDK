@@ -21,6 +21,8 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.Call;
@@ -40,6 +42,8 @@ public class ValidateStatusRest {
     private final int ADDDATARESPONSE = 2;
     private final int USERRESPONSEINITIAL = 3;
     private final int SENDFACIALAUTH = 4;
+    private final int GETCONTRACT = 5;
+    private final int GETIMAGE = 6;
 
 
     public void getAuth(final Activity activity, String clientID, String clientSecret, final AsynchronousTask asynchronousTask) {
@@ -76,7 +80,7 @@ public class ValidateStatusRest {
                     @Override
                     public void onFailure(Call call, IOException e) {
                         asynchronousTask.onErrorTransaction(e.getLocalizedMessage());
-                        e.printStackTrace();
+                        // // e.printStackTrace();();
                     }
 
                     @Override
@@ -91,7 +95,7 @@ public class ValidateStatusRest {
                                 asynchronousTask.onErrorTransaction(Jobject.getString("msg"));
                             }
                         } catch (JSONException e) {
-                            e.printStackTrace();
+                            // // e.printStackTrace();();
                             asynchronousTask.onErrorTransaction(e.getLocalizedMessage());
                         }
                     }
@@ -100,7 +104,7 @@ public class ValidateStatusRest {
 
             } catch (Exception e) {
                 asynchronousTask.onErrorTransaction(e.getLocalizedMessage());
-                e.printStackTrace();
+                // // e.printStackTrace();();
             }
         });
     }
@@ -162,7 +166,7 @@ public class ValidateStatusRest {
                     @Override
                     public void onFailure(Call call, IOException e) {
                         asynchronousTask.onErrorTransaction(e.getLocalizedMessage());
-                        e.printStackTrace();
+                        // // e.printStackTrace();();
                     }
 
                     @Override
@@ -186,7 +190,7 @@ public class ValidateStatusRest {
                             }
 
                         } catch (JSONException e) {
-                            e.printStackTrace();
+                            // // e.printStackTrace();();
                             asynchronousTask.onErrorTransaction(e.getLocalizedMessage());
                         }
 
@@ -202,7 +206,7 @@ public class ValidateStatusRest {
 
             } catch (Exception e) {
                 asynchronousTask.onErrorTransaction(e.getLocalizedMessage());
-                e.printStackTrace();
+                // // e.printStackTrace();();
             }
         });
     }
@@ -322,7 +326,7 @@ public class ValidateStatusRest {
                     @Override
                     public void onFailure(Call call, IOException e) {
                         asynchronousTask.onErrorTransaction(e.getLocalizedMessage());
-                        e.printStackTrace();
+                        // // e.printStackTrace();();
                     }
 
                     @Override
@@ -333,7 +337,7 @@ public class ValidateStatusRest {
 
                             if (response.code() == 404) {
                                 asynchronousTask.onReceiveResultsTransaction(new ResponseIV(ResponseIV.NOFOUND, Jobject.getString("apimsg")), isInitialValidation ? USERRESPONSEINITIAL : USERRESPONSE);
-                            } else if (response.code() == 200) {
+                            } else if (response.code() == 200 || response.code() == 202 ) {
                                 if (Jobject.has("verification") &&
                                         Jobject.has("media")) {
                                     JSONObject JobjectV = new JSONObject(Jobject.getString("verification"));
@@ -351,25 +355,27 @@ public class ValidateStatusRest {
                                             asynchronousTask.onReceiveResultsTransaction(new ResponseIV(ResponseIV.ERROR, JobjectV.getString("verification_status")), isInitialValidation ? USERRESPONSEINITIAL : USERRESPONSE);
                                         } else {
                                             if (JobjectV.getString("verification_status").equals("completed")) {
-                                                boolean face_match = false,
-                                                        template = false,
-                                                        alteration = false,
-                                                        watch_list = false;
-
-                                                if(Jobject.has("face_match")
-                                                && Jobject.has("template")
-                                                && Jobject.has("alteration")
-                                                && Jobject.has("watch_list") ){
-                                                    if (JobjectV.getBoolean("face_match"))
-                                                        face_match = true;
-                                                    if (JobjectV.getBoolean("template"))
-                                                        template = true;
-                                                    if (JobjectV.getBoolean("alteration"))
-                                                        alteration = true;
-                                                    if (JobjectV.getBoolean("watch_list"))
+                                                boolean face_match = true,
+                                                        template = true,
+                                                        alteration = true,
                                                         watch_list = true;
-                                                }
 
+                                                if (Jobject.has("face_match")) {
+                                                    if (JobjectV.getBoolean("face_match"))
+                                                        face_match = false;
+                                                }
+                                                if (Jobject.has("template")) {
+                                                    if (JobjectV.getBoolean("template"))
+                                                        template = false;
+                                                }
+                                                if (Jobject.has("alteration")) {
+                                                    if (JobjectV.getBoolean("alteration"))
+                                                        alteration = false;
+                                                }
+                                                if (Jobject.has("watch_list")) {
+                                                    if (JobjectV.getBoolean("watch_list"))
+                                                        watch_list = false;
+                                                }
 
                                                 JSONObject JComplyAdvantage = new JSONObject();
                                                 if (Jobject.has("usercomply_advantageAgent")) {
@@ -381,6 +387,7 @@ public class ValidateStatusRest {
                                                         (Jobject.has("created_at") ? Jobject.getString("created_at") : ""),
                                                         (Jobject.has("company") ? Jobject.getString("company") : ""),
                                                         (Jobject.has("fullname") ? Jobject.getString("fullname") : ""),
+                                                        (Jobject.has("dni_number") ? Jobject.getString("dni_number") : ""),
                                                         (Jobject.has("birth") ? Jobject.getString("birth") : ""),
                                                         (Jobject.has("document_type") ? Jobject.getString("document_type") : ""),
                                                         (Jobject.has("document_number") ? Jobject.getString("document_number") : ""),
@@ -412,6 +419,9 @@ public class ValidateStatusRest {
                                                         (JobjectM.has("frontImgUrl") ? JobjectM.getString("frontImgUrl") : ""),
                                                         (JobjectM.has("backImgUrl") ? JobjectM.getString("backImgUrl") : ""),
                                                         (JobjectM.has("selfiImageUrl") ? JobjectM.getString("selfiImageUrl") : ""),
+                                                        "",
+                                                        "",
+                                                        "",
                                                         "verification complete",
                                                         ResponseIV.SUCCES
                                                 );
@@ -428,7 +438,7 @@ public class ValidateStatusRest {
                                 }
                             }
                         } catch (JSONException e) {
-                            e.printStackTrace();
+                            // // e.printStackTrace();();
                             asynchronousTask.onErrorTransaction(e.getLocalizedMessage());
                         }
                     }
@@ -437,7 +447,7 @@ public class ValidateStatusRest {
 
             } catch (Exception e) {
                 asynchronousTask.onErrorTransaction(e.getLocalizedMessage());
-                e.printStackTrace();
+                // // e.printStackTrace();();
             }
         });
     }
@@ -453,6 +463,117 @@ public class ValidateStatusRest {
                 .build();
 
         return requestBody;
+    }
+
+    public void getContract(String contractId, String access_token, final Activity activity, final AsynchronousTask asynchronousTask) {
+        AsyncTask.execute(() -> {
+            try {
+                OkHttpClient client = new OkHttpClient.Builder()
+                        .connectTimeout(activity.getResources().getInteger(R.integer.timeOut), TimeUnit.SECONDS)
+                        .readTimeout(activity.getResources().getInteger(R.integer.timeOut), TimeUnit.SECONDS)
+                        .writeTimeout(activity.getResources().getInteger(R.integer.timeOut), TimeUnit.SECONDS).build();
+                SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(activity); // get url
+                String serverUrl = preferences.getString(SharedParameters.URL_GET_CONTRACT, SharedParameters.url_get_contract);
+                String urlContractId = serverUrl + contractId;
+                Request request = new Request.Builder()
+                        .url(urlContractId)
+                        .header("Authorization", "Bearer " + access_token)
+                        .get()
+                        .build();
+
+                Call call = client.newCall(request);
+
+                call.enqueue(new Callback() {
+
+                    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
+                    @Override
+                    public void onFailure(Call call, IOException e) {
+                        asynchronousTask.onErrorTransaction(e.getLocalizedMessage());
+                        // // e.printStackTrace();();
+                    }
+
+                    @Override
+                    public void onResponse(Call call, Response response) throws IOException {
+                        try {
+                            String jsonData = response.body().string();
+                            JSONObject Jobject = new JSONObject(jsonData);
+                            Map<String, Object> map = new HashMap<String, Object>();
+
+                            if (Jobject.has("msg")) {
+                                map.put("mensaje", Jobject.getString("verification_status"));
+                                asynchronousTask.onReceiveResultsTransactionDictionary(map, ResponseIV.ERROR, GETCONTRACT);
+                            } else if (Jobject.has("canUseOnexOne") &&
+                                    Jobject.has("countIsOnexOne") &&
+                                    Jobject.has("maxIsOnexOne")) {
+                                map.put("canUseOnexOne", Jobject.getBoolean("canUseOnexOne"));
+                                map.put("countIsOnexOne", Jobject.getInt("countIsOnexOne"));
+                                map.put("maxIsOnexOne", Jobject.getInt("maxIsOnexOne"));
+                                asynchronousTask.onReceiveResultsTransactionDictionary(map, ResponseIV.SUCCES, GETCONTRACT);
+                            } else {
+                                map.put("mensaje", activity.getResources().getString(R.string.general_error));
+                                asynchronousTask.onReceiveResultsTransactionDictionary(map, ResponseIV.ERROR, GETCONTRACT);
+                            }
+                        } catch (JSONException e) {
+                            // // e.printStackTrace();();
+                            asynchronousTask.onErrorTransaction(e.getLocalizedMessage());
+                        }
+                    }
+                });
+
+
+            } catch (Exception e) {
+                asynchronousTask.onErrorTransaction(e.getLocalizedMessage());
+                // // e.printStackTrace();();
+            }
+        });
+    }
+
+
+    public void getImage(String urlImage, String access_token, String name, final Activity activity, final AsynchronousTask asynchronousTask) {
+        AsyncTask.execute(() -> {
+            try {
+                OkHttpClient client = new OkHttpClient.Builder()
+                        .connectTimeout(activity.getResources().getInteger(R.integer.timeOut), TimeUnit.SECONDS)
+                        .readTimeout(activity.getResources().getInteger(R.integer.timeOut), TimeUnit.SECONDS)
+                        .writeTimeout(activity.getResources().getInteger(R.integer.timeOut), TimeUnit.SECONDS).build();
+                Request request = new Request.Builder()
+                        .url(urlImage)
+                        .header("Authorization", "Bearer " + access_token)
+                        .get()
+                        .build();
+
+                Call call = client.newCall(request);
+
+                call.enqueue(new Callback() {
+
+                    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
+                    @Override
+                    public void onFailure(Call call, IOException e) {
+                        asynchronousTask.onErrorTransaction(e.getLocalizedMessage());
+                        // // e.printStackTrace();();
+                    }
+
+                    @Override
+                    public void onResponse(Call call, Response response) throws IOException {
+                        byte[] imageData = response.body().bytes();
+                        Map<String, Object> map = new HashMap<String, Object>();
+                        if (imageData != null && imageData.length > 0) {
+                            map.put("dataResponse", imageData);
+                            map.put("name", name);
+                            asynchronousTask.onReceiveResultsTransactionDictionary(map, ResponseIV.SUCCES, GETIMAGE);
+                        } else {
+                            map.put("mensaje", activity.getResources().getString(R.string.general_error));
+                            asynchronousTask.onReceiveResultsTransactionDictionary(map, ResponseIV.ERROR, GETIMAGE);
+                        }
+                    }
+                });
+
+
+            } catch (Exception e) {
+                asynchronousTask.onErrorTransaction(e.getLocalizedMessage());
+                // // e.printStackTrace();();
+            }
+        });
     }
 
 
@@ -486,7 +607,7 @@ public class ValidateStatusRest {
                     @Override
                     public void onFailure(Call call, IOException e) {
                         asynchronousTask.onErrorTransaction(e.getLocalizedMessage());
-                        e.printStackTrace();
+                        // // e.printStackTrace();();
                     }
 
                     @Override
@@ -525,7 +646,7 @@ public class ValidateStatusRest {
                             }
 
                         } catch (JSONException e) {
-                            e.printStackTrace();
+                            // // e.printStackTrace();();
                             asynchronousTask.onErrorTransaction(e.getLocalizedMessage());
                         }
                     }
@@ -534,7 +655,7 @@ public class ValidateStatusRest {
 
             } catch (Exception e) {
                 asynchronousTask.onErrorTransaction(e.getLocalizedMessage());
-                e.printStackTrace();
+                // // e.printStackTrace();();
             }
         });
     }
