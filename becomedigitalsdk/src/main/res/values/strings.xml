@@ -28,7 +28,7 @@
     <string name="text_btn_intro_doc_galery">Galeria</string>
     <string name="text_save_img">Guardando...</string>
     <string name="text_finish">¡Finalizaste!</string>
-    <string name="text_sub_tittle_finish">Felicidades, la captura de tos datos esta completa</string>
+    <string name="text_sub_tittle_finish">Felicidades, la captura de tus datos esta completa</string>
     <string name="text_cancel">Terminar</string>
     <string name="text_undo">Volver</string>
     <string name="text_sub_tittle_undo">¿Deseas terminar el proceso?</string>
