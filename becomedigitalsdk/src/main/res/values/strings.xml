@@ -33,7 +33,7 @@
     <string name="text_undo">Volver</string>
     <string name="text_sub_tittle_undo">¿Deseas terminar el proceso?</string>
     <string name="text_tittle_undo">¿Estas seguro?</string>
-    <string name="text_loader_init">Iniciando...</string>
+    <string name="text_loader_init">Iniciando…</string>
     <string name="text_video_confirm">¿Realizaste 2 Círculos con tu nariz?</string>
     <string name="terminate_text">Terminar</string>
     <string name="text_retry_previe">No, reintentar</string>

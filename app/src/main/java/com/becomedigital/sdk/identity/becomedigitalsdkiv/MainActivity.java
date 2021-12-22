@@ -74,6 +74,7 @@ public class MainActivity extends AppCompatActivity {
                             byteArray,
                             userId
                     ));
+            
             BecomeResponseManager.getInstance().registerCallback(mCallbackManager, new BecomeInterfaseCallback() {
                 @Override
                 public void onSuccess(final ResponseIV responseIV) {

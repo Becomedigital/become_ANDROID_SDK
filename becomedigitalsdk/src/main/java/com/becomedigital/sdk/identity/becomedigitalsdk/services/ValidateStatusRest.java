@@ -15,6 +15,7 @@ import com.becomedigital.sdk.identity.becomedigitalsdk.callback.AsynchronousTask
 import com.becomedigital.sdk.identity.becomedigitalsdk.models.BDIVConfig;
 import com.becomedigital.sdk.identity.becomedigitalsdk.models.ResponseIV;
 import com.becomedigital.sdk.identity.becomedigitalsdk.utils.SharedParameters;
+import com.becomedigital.sdk.identity.becomedigitalsdk.utils.UserAgentInterceptor;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -115,6 +116,7 @@ public class ValidateStatusRest {
 
     public void addDataServer(final Activity activity,
                               BDIVConfig config,
+                              String ua,
                               SharedParameters.typeDocument typeDocument,
                               String urlDocFront,
                               String selectedCountyCo2,
@@ -148,9 +150,11 @@ public class ValidateStatusRest {
 
 
                 OkHttpClient client = new OkHttpClient.Builder()
+                        .addInterceptor(new UserAgentInterceptor(ua))
                         .connectTimeout(activity.getResources().getInteger(R.integer.timeOut), TimeUnit.SECONDS)
                         .readTimeout(activity.getResources().getInteger(R.integer.timeOut), TimeUnit.SECONDS)
-                        .writeTimeout(activity.getResources().getInteger(R.integer.timeOut), TimeUnit.SECONDS).build();
+                        .writeTimeout(activity.getResources().getInteger(R.integer.timeOut), TimeUnit.SECONDS)
+                        .build();
 
                 Request request = new Request.Builder()
                         .header("Authorization", "Bearer " + accesToken)
