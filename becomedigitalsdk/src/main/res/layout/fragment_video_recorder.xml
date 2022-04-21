@@ -20,7 +20,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <ImageView
-        android:id="@+id/imgReferenceDocument"
+        android:id="@+id/imgReferenceVideo"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:scaleType="fitXY"
@@ -41,7 +41,7 @@
         android:alpha="0.84"
         android:background="@color/black"
         android:orientation="vertical"
-        app:layout_constraintBottom_toTopOf="@+id/imgReferenceDocument"
+        app:layout_constraintBottom_toTopOf="@+id/imgReferenceVideo"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
@@ -70,7 +70,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/imgReferenceDocument"
+        app:layout_constraintTop_toBottomOf="@+id/imgReferenceVideo"
         app:layout_constraintVertical_bias="0.0">
 
     </LinearLayout>
@@ -97,10 +97,10 @@
         android:textColor="@color/white"
         android:textSize="32sp"
         android:textStyle="bold"
-        app:layout_constraintBottom_toBottomOf="@+id/imgReferenceDocument"
-        app:layout_constraintEnd_toEndOf="@+id/imgReferenceDocument"
-        app:layout_constraintStart_toStartOf="@+id/imgReferenceDocument"
-        app:layout_constraintTop_toTopOf="@+id/imgReferenceDocument" />
+        app:layout_constraintBottom_toBottomOf="@+id/imgReferenceVideo"
+        app:layout_constraintEnd_toEndOf="@+id/imgReferenceVideo"
+        app:layout_constraintStart_toStartOf="@+id/imgReferenceVideo"
+        app:layout_constraintTop_toTopOf="@+id/imgReferenceVideo" />
 
     <ImageView
         android:id="@+id/img_animation_indicator"
@@ -110,7 +110,7 @@
         app:layout_constraintDimensionRatio="1:1"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/imgReferenceDocument"
+        app:layout_constraintTop_toBottomOf="@+id/imgReferenceVideo"
         tools:ignore="ContentDescription"
         tools:src="@tools:sample/avatars" />
 

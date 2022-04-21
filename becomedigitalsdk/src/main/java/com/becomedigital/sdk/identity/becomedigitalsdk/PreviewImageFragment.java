@@ -23,9 +23,6 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageView;
 
-import com.becomedigital.sdk.identity.becomedigitalsdk.models.BDIVConfig;
-import com.becomedigital.sdk.identity.becomedigitalsdk.utils.SharedParameters;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -44,15 +41,7 @@ import static androidx.navigation.Navigation.findNavController;
  */
 public class PreviewImageFragment extends Fragment {
 
-    private SharedParameters.typeDocument typeDocument;
-    private BDIVConfig config;
-    private String selectedCountry,
-            selectedCountyCo2 = "",
-            urlVideoFile = "",
-            urlDocFront = "",
-            urlDocBack = "";
-    private boolean isFront;
-    private boolean isSelfie;
+
     public PreviewImageFragment() {
         // Required empty public constructor
     }
@@ -72,31 +61,7 @@ public class PreviewImageFragment extends Fragment {
         super.onViewCreated (view, savedInstanceState);
         ((MainBDIV) getActivity ( )).changeColorToolbar (true);
         ImageView imgToPreview = getActivity ( ).findViewById (R.id.imgToPreview);
-        ImageView imgProgresssbar = getActivity().findViewById(R.id.imgProgressBarDoc);
-        Bundle arguments = getArguments();
-        if (arguments != null) {
-            config = (BDIVConfig) arguments.getSerializable("config");
-            if (arguments.containsKey("typeDocument"))
-                typeDocument = (SharedParameters.typeDocument) arguments.getSerializable("typeDocument");
-            if (arguments.containsKey("urlVideoFile"))
-                urlVideoFile = arguments.getString("urlVideoFile");
-            if (arguments.containsKey("selectedCountyCo2"))
-                selectedCountyCo2 = arguments.getString("selectedCountyCo2");
-            if (arguments.containsKey("selectedCountry"))
-                selectedCountry = arguments.getString("selectedCountry");
-            if (arguments.containsKey("urlDocBack"))
-                urlDocBack = arguments.getString("urlDocBack");
-            if (arguments.containsKey("urlDocFront"))
-                urlDocFront = arguments.getString("urlDocFront");
-            if (arguments.containsKey("isFront"))
-                isFront = getArguments().getBoolean("isFront");
-            if (arguments.containsKey("isSelfie"))
-                isSelfie = getArguments().getBoolean("isSelfie");
 
-        }
-        if(isSelfie){
-            imgProgresssbar.setVisibility(View.INVISIBLE);
-        }
         btnIsOkImage = getActivity ( ).findViewById (R.id.btnOkImage);
         Button btnRetry = getActivity ( ).findViewById (R.id.btnRetry);
 
@@ -116,46 +81,27 @@ public class PreviewImageFragment extends Fragment {
 
             });
             btnIsOkImage.setOnClickListener (view12 -> {
-                if(isSelfie){
-                    ((MainBDIV) getActivity ( )).displayLoader (true );
-                    ((MainBDIV) getActivity ( )).facialAuth(config, pathToFile);
-                }else{
-                    if (getArguments ( ).getBoolean ("isFront")) {
-                        urlDocFront = pathToFile;
-                    } else {
-                        urlDocBack = pathToFile;
-                    }
-                    navigate ( );
+                if (getArguments ( ).getBoolean ("isFront")) {
+                    ((MyApplication) getActivity ( ).getApplication ( )).setUrlDocFront (pathToFile);
+                } else {
+                    ((MyApplication) getActivity ( ).getApplication ( )).setUrlDocBack (pathToFile);
                 }
+                navigate ( );
             });
 
     }
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        //Clear the Activity's bundle
-        outState.clear();
-    }
-
 
     private void navigate() {
-        Bundle bundle = new Bundle ( );
-        bundle.putString ("urlDocFront", urlDocFront);
-        bundle.putString ("urlDocBack", urlDocBack);
-        bundle.putString("selectedCountry",selectedCountry);
-        bundle.putString("selectedCountyCo2",selectedCountyCo2);
-        bundle.putSerializable("typeDocument",typeDocument);
-        bundle.putSerializable("config",config);
-        bundle.putString ("urlVideoFile", urlVideoFile);
-        if (typeDocument == SharedParameters.typeDocument.PASSPORT) {
-            findNavController (getActivity ( ), R.id.nav_host_fragment).navigate (R.id.actionFinish, bundle);
+        if (((MyApplication) getActivity ( ).getApplicationContext ( )).getSelectedDocument ( ) == MyApplication.typeDocument.PASSPORT) {
+            findNavController (getActivity ( ), R.id.nav_host_fragment).navigate (R.id.actionFinish);
         } else {
-
-            if (isFront) {
+            Bundle bundle = new Bundle ( );
+            bundle.putBoolean ("isFront", false);
+            if (getArguments ( ).getBoolean ("isFront")) {
                 bundle.putBoolean ("isFront", false);
                 findNavController (getActivity ( ), R.id.nav_host_fragment).navigate (R.id.actionCaptureBackDocument, bundle);
             } else {
-                findNavController (getActivity ( ), R.id.nav_host_fragment).navigate (R.id.actionFinish, bundle);
+                findNavController (getActivity ( ), R.id.nav_host_fragment).navigate (R.id.actionFinish);
             }
         }
     }

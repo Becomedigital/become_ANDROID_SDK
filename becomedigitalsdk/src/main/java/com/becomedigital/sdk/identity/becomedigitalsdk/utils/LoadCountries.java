@@ -218,7 +218,7 @@ public class LoadCountries {
                 count++;
                 Countries_db.setId (count);
                 long countrieId = countriesView.createCountry (Countries_db, activity);
-                //Log.d ("Countries_class", countrieId + " pais creado con exito");
+                Log.d ("Countries_class", countrieId + " pais creado con exito");
             }
         }
     }

@@ -15,9 +15,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
-import com.becomedigital.sdk.identity.becomedigitalsdk.models.BDIVConfig;
-import com.becomedigital.sdk.identity.becomedigitalsdk.utils.SharedParameters;
-
 
 /**
  * A simple {@link Fragment} subclass.
@@ -36,40 +33,21 @@ public class FinishFragment extends Fragment {
         // Inflate the layout for this fragment
         return inflater.inflate (R.layout.fragment_finish, container, false);
     }
-    private SharedParameters.typeDocument typeDocument;
-    private BDIVConfig config;
-    private String selectedCountry,
-            selectedCountyCo2,
-            urlVideoFile = "",
-            urlDocFront = "",
-            urlDocBack = "";
+
     @SuppressLint("ClickableViewAccessibility")
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated (view, savedInstanceState);
-        Bundle arguments = getArguments();
-        if (arguments != null) {
-            config = (BDIVConfig) arguments.getSerializable("config");
-            typeDocument = (SharedParameters.typeDocument) arguments.getSerializable("typeDocument");
-            if (arguments.containsKey("urlVideoFile"))
-                urlVideoFile = arguments.getString("urlVideoFile");
-            selectedCountyCo2 = arguments.getString("selectedCountyCo2");
-            selectedCountry = arguments.getString("selectedCountry");
-            if (arguments.containsKey("urlDocBack"))
-                urlDocBack = arguments.getString("urlDocBack");
-            if (arguments.containsKey("urlDocFront"))
-                urlDocFront = arguments.getString("urlDocFront");
-        }
         Button btnUpload = getActivity ().findViewById (R.id.btnUpload);
         btnUpload.setOnTouchListener ((v, event) -> {
             switch (event.getAction ( )) {
                 case MotionEvent.ACTION_DOWN:
                     getActivity ( ).runOnUiThread (() -> {
-                        ((MainBDIV) getActivity ( )).displayLoader ( false);
+                        ((MainBDIV) getActivity ( )).displayLoader ( );
                     });
                     break;
                 case MotionEvent.ACTION_UP:
-                    ((MainBDIV) getActivity ( )).addDataServer(config,typeDocument,urlDocFront,selectedCountyCo2,urlDocBack, urlVideoFile);
+                    ((MainBDIV) getActivity ( )).addDataServer();
                     break;
             }
             return false;

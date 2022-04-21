@@ -13,8 +13,6 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
 
-import com.becomedigital.sdk.identity.becomedigitalsdk.models.BDIVConfig;
-
 import static androidx.navigation.Navigation.findNavController;
 
 
@@ -27,8 +25,6 @@ public class IntroSelectDocumentTypeFragment extends Fragment {
         return inflater.inflate (R.layout.fragment_intro_select_document_type, container, false);
     }
 
-    private BDIVConfig config;
-    private String urlVideoFile = "";
 
     @Override
     public void onResume() {
@@ -39,19 +35,11 @@ public class IntroSelectDocumentTypeFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated (view, savedInstanceState);
-        Bundle arguments = getArguments();
-        if (arguments != null) {
-            config = (BDIVConfig) arguments.getSerializable("config");
-            urlVideoFile = arguments.getString("urlVideoFile");
-        }
         Button btnContinue = getActivity ( ).findViewById (R.id.btnContinueInfo);
-        Bundle bundle = new Bundle ( );
-        bundle.putSerializable("config", config);
-        bundle.putString("urlVideoFile", urlVideoFile);
-        btnContinue.setOnClickListener (view1 -> findNavController (view1).navigate (R.id.SelectCountryAction, bundle));
+        btnContinue.setOnClickListener (view1 -> findNavController (view1).navigate (R.id.SelectCountryAction));
         ((MainBDIV) getActivity ( )).changeColorToolbar (false);
         String split = getString (R.string.splitValidationTypes);
-        String[] validationTypesSubs = config.getValidationTypes ( ).split (split);
+        String[] validationTypesSubs = ((MyApplication) getActivity ( ).getApplicationContext ( )).getValidationTypes ( ).split (split);
         LinearLayout lPassport = getActivity ( ).findViewById (R.id.lPassportInfo);
         LinearLayout lDNI = getActivity ( ).findViewById (R.id.lDNIInfo);
         LinearLayout lLicense = getActivity ( ).findViewById (R.id.lLicenseInfo);

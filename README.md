@@ -6,17 +6,13 @@ Este es un espacio para conocer a cerca del SDK Android de Become para la valida
 
 ## Configuraciones de Gradle
 
- 1. Dentro del archivo build.gradle debe agregar las siguientes modificaciones:
-
-	         defaultConfig {
-	           minSdkVersion 21
-	         }
-		 
+ 1. Dentro del archivo build.gradle debe adicionar el siguiente fragmento de código:
+ 
 		 android {
 		    compileOptions {
 		        sourceCompatibility = 1.8
-			targetCompatibility = 1.8
-		     }
+				targetCompatibility = 1.8
+		  }
 		}
 		
 2. El archivo build.grade debe contar con una referencia al repositorio:
@@ -46,7 +42,7 @@ Cómo primera medida es necesaria la implementacion de los siguientes módulos:
 		 
 	Ejemplo:
 		 
-		 implementation 'com.github.nelsonPena:become_ANDROID_SDK:3.2.1'
+		 implementation 'com.github.Becomedigital:become_ANDROID_SDK:3.0'
 		 
  3. Al realizar los pasos anteriores, debe sincronizar su proyecto con gradle.
  
