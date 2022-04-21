@@ -13,6 +13,7 @@ import android.view.View;
 import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.webkit.WebView;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
@@ -396,7 +397,9 @@ public class MainBDIV extends AppCompatActivity implements AsynchronousTask {
                               String urlDocBack,
                               String urlVideo) {
         textInfoServer.setText(getString(R.string.text_info_upload));
-        autService.addDataServer(this, config, typeDocument, urlDocFront, selectedCountyCo2.toUpperCase(), urlDocBack, urlVideo, access_token, this);
+        // Carga el user agent
+        String ua = new WebView(this).getSettings().getUserAgentString();
+        autService.addDataServer(this, config, ua, typeDocument, urlDocFront, selectedCountyCo2.toUpperCase(), urlDocBack, urlVideo, access_token, this);
     }
 
     public void facialAuth(BDIVConfig config,

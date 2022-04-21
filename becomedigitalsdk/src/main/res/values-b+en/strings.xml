@@ -50,7 +50,7 @@
     <string name="text_time_out_msn">\ The waiting time has expired. Do you want to try again?</string>
     <string name="retry_send_text">Consulting again...</string>
     <string name="text_tittle_selfie">Take a selfie to validate your identity</string>
-    <string name="text_loader_selfie">We are validating your identity with the National Registry</string>
+    <string name="text_loader_selfie">Our artificial intelligence is performing a biometric analysis of your face</string>
     <string name="text_error_path_image_pick">You can`t get the file route</string>
     <string name="text_empty_balance">Insufficient balance</string>
 </resources>

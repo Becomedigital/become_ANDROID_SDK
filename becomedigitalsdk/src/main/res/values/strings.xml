@@ -2,7 +2,7 @@
     <string name="app_name">BecomeDigitalSDK</string>
     <string name="text_more_full_bar">Enviando información al servidor</string>
     <string name="text_progres_complete">Esta tardando más de lo normal</string>
-    <string name="text_progress_inteligence">Estamos validando su identidad con la Registarduria Nacional</string>
+    <string name="text_progress_inteligence">Nuestra inteligencia artificial esta realizando el análisis biométrico de tu rostro</string>
     <string name="text_progress_more_70">validando estatus de la autenticacón</string>
     <string name="and_intro_general">y</string>
     <string name="text_start_btn">Comencemos</string>
@@ -50,7 +50,7 @@
     <string name="text_time_out_msn">\Se agotó el tiempo de espera. ¿deseas intentarlo nuevamente?</string>
     <string name="retry_send_text">Consultando nuevamente...</string>
     <string name="text_tittle_selfie">Tómate una selfie para validar tu identidad</string>
-    <string name="text_loader_selfie">Estamos validando su identidad con la Registarduria Nacional</string>
+    <string name="text_loader_selfie">Nuestra inteligencia artificial está realizando un análisis biométrico de tu rostro</string>
     <string name="text_error_path_image_pick">No se puede obtener la ruta del archivo</string>
     <string name="text_empty_balance">Saldo insuficiente</string>
 
