@@ -101,23 +101,23 @@ public class CompressImage {
 
             int orientation = exif.getAttributeInt (
                     ExifInterface.TAG_ORIENTATION, 0);
-            Log.d ("EXIF", "Exif: " + orientation);
+            //Log.d ("EXIF", "Exif: " + orientation);
             Matrix matrix = new Matrix ( );
             if (orientation == 6) {
                 matrix.postRotate (90);
-                Log.d ("EXIF", "Exif: " + orientation);
+                //Log.d ("EXIF", "Exif: " + orientation);
             } else if (orientation == 3) {
                 matrix.postRotate (180);
-                Log.d ("EXIF", "Exif: " + orientation);
+                //Log.d ("EXIF", "Exif: " + orientation);
             } else if (orientation == 8) {
                 matrix.postRotate (270);
-                Log.d ("EXIF", "Exif: " + orientation);
+                //Log.d ("EXIF", "Exif: " + orientation);
             }
             scaledBitmap = Bitmap.createBitmap (scaledBitmap, 0, 0,
                     scaledBitmap.getWidth ( ), scaledBitmap.getHeight ( ), matrix,
                     true);
         } catch (IOException e) {
-            e.printStackTrace ( );
+            // e.printStackTrace(); ( );
         }
 
         FileOutputStream out = null;
@@ -129,7 +129,7 @@ public class CompressImage {
             scaledBitmap.compress (Bitmap.CompressFormat.JPEG, 80, out);
 
         } catch (FileNotFoundException e) {
-            e.printStackTrace ( );
+            // e.printStackTrace(); ( );
         }
 
         return filename;
@@ -264,23 +264,23 @@ public class CompressImage {
 
             int orientation = exif.getAttributeInt (
                     ExifInterface.TAG_ORIENTATION, 0);
-            Log.d ("EXIF", "Exif: " + orientation);
+            //Log.d ("EXIF", "Exif: " + orientation);
             Matrix matrix = new Matrix ( );
             if (orientation == 6) {
                 matrix.postRotate (90);
-                Log.d ("EXIF", "Exif: " + orientation);
+                //Log.d ("EXIF", "Exif: " + orientation);
             } else if (orientation == 3) {
                 matrix.postRotate (180);
-                Log.d ("EXIF", "Exif: " + orientation);
+                //Log.d ("EXIF", "Exif: " + orientation);
             } else if (orientation == 8) {
                 matrix.postRotate (270);
-                Log.d ("EXIF", "Exif: " + orientation);
+                //Log.d ("EXIF", "Exif: " + orientation);
             }
             scaledBitmap = Bitmap.createBitmap (scaledBitmap, 0, 0,
                     scaledBitmap.getWidth ( ), scaledBitmap.getHeight ( ), matrix,
                     true);
         } catch (IOException e) {
-            e.printStackTrace ( );
+            // e.printStackTrace(); ( );
         }
 
         FileOutputStream out = null;
@@ -292,7 +292,7 @@ public class CompressImage {
             scaledBitmap.compress (Bitmap.CompressFormat.JPEG, 80, out);
 
         } catch (FileNotFoundException e) {
-            e.printStackTrace ( );
+            // e.printStackTrace(); ( );
         }
 
         return filename;
@@ -305,9 +305,14 @@ public class CompressImage {
         if (cursor == null) {
             return contentUri.getPath ( );
         } else {
-            cursor.moveToFirst ( );
-            int index = cursor.getColumnIndex (MediaStore.Images.ImageColumns.DATA);
-            return cursor.getString (index);
+            try {
+                cursor.moveToFirst ( );
+                int index = cursor.getColumnIndex (MediaStore.Images.ImageColumns.DATA);
+                return cursor.getString (index);
+            }catch (Exception e){
+                // e.printStackTrace(); ( );
+                return "";
+            }
         }
     }
 

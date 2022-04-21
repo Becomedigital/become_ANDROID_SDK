@@ -50,6 +50,7 @@ import androidx.fragment.app.Fragment;
 
 import com.becomedigital.sdk.identity.becomedigitalsdk.R;
 import com.becomedigital.sdk.identity.becomedigitalsdk.mediaRecorders.AutoFitTextureView;
+import com.becomedigital.sdk.identity.becomedigitalsdk.models.BDIVConfig;
 import com.bumptech.glide.Glide;
 
 import java.io.File;
@@ -71,6 +72,8 @@ public class VideoRecorderFragment extends Fragment {
     private static final SparseIntArray INVERSE_ORIENTATIONS = new SparseIntArray();
     private static final int SENSOR_ORIENTATION_DEFAULT_DEGREES = 90;
     private static final int SENSOR_ORIENTATION_INVERSE_DEGREES = 270;
+
+
     static {
         DEFAULT_ORIENTATIONS.append(Surface.ROTATION_0, 90);
         DEFAULT_ORIENTATIONS.append(Surface.ROTATION_90, 0);
@@ -84,10 +87,6 @@ public class VideoRecorderFragment extends Fragment {
         INVERSE_ORIENTATIONS.append(Surface.ROTATION_180, 90);
         INVERSE_ORIENTATIONS.append(Surface.ROTATION_270, 0);
     }
-
-
-
-    private String cameraId;
 
     /**
      * An {@link AutoFitTextureView} for camera preview.
@@ -206,7 +205,7 @@ public class VideoRecorderFragment extends Fragment {
                 return size;
             }
         }
-        Log.e (TAG, "Couldn't find any suitable video size");
+        //Log.e (TAG, "Couldn't find any suitable video size");
         return choices[choices.length - 1];
     }
 
@@ -236,7 +235,7 @@ public class VideoRecorderFragment extends Fragment {
         if (bigEnough.size ( ) > 0) {
             return Collections.min (bigEnough, new CompareSizesByArea ( ));
         } else {
-            Log.e (TAG, "Couldn't find any suitable preview size");
+            //Log.e (TAG, "Couldn't find any suitable preview size");
             return choices[0];
         }
     }
@@ -251,6 +250,10 @@ public class VideoRecorderFragment extends Fragment {
     public void onViewCreated(final View view, Bundle savedInstanceState) {
         super.onViewCreated (view, savedInstanceState);
         mTextureView = getActivity ( ).findViewById (R.id.texture);
+       Bundle arguments = getArguments();
+        if (arguments != null) {
+            config = (BDIVConfig) arguments.getSerializable("config");
+        }
     }
 
     @Override
@@ -267,7 +270,7 @@ public class VideoRecorderFragment extends Fragment {
         initialSetups ( );
         final Animation animScale = AnimationUtils.loadAnimation (getActivity ( ), R.anim.anim_scale);
 
-        countdownRecording = 8;
+        countdownRecording = 4;
         countdownToStart = 4;
         initCoundown ( );
         Glide.with (this)
@@ -279,18 +282,18 @@ public class VideoRecorderFragment extends Fragment {
     private void initCoundown() {
         countDownTimerRecord = new CountDownTimer (3000, 1000) {
             public void onTick(long millisUntilFinished) {
-                Log.d (TAG, "time to record video:" + millisUntilFinished);
+                //Log.d (TAG, "time to record video:" + millisUntilFinished);
             }
 
             public void onFinish() {
-                Log.d (TAG, "time: done");
+                //Log.d (TAG, "time: done");
                 startRecordingVideo ( );
                 recording = true;
             }
         }.start ( );
-        countDownTimerGeneral = new CountDownTimer (11000, 1000) {
+        countDownTimerGeneral = new CountDownTimer (7000, 1000) {
             public void onTick(long millisUntilFinished) {
-                Log.d (TAG, "time: " + millisUntilFinished);
+                //Log.d (TAG, "time: " + millisUntilFinished);
                 countdownToStart--;
                 if (countdownToStart <= 0) { // inicia la visualizacion de la cuenta regresiva de grabado
                     if (countdownRecording >= 0) {
@@ -308,14 +311,17 @@ public class VideoRecorderFragment extends Fragment {
             }
 
             public void onFinish() {
-                Log.d (TAG, "time: done");
+                //Log.d (TAG, "time: done");
                 try {
                     stopRecordingVideo ( );
                 } catch (Exception e) {
-                    e.printStackTrace ( );
+                    // e.printStackTrace(); ( );
                 }
                 recording = false;
-                findNavController (getActivity ( ), R.id.nav_host_fragment).navigate (R.id.actionOkRecordSelecDocument);
+                Bundle bundle = new Bundle ( );
+                bundle.putSerializable("config", config);
+                bundle.putString("urlVideoFile", urlVideoFile);
+                findNavController (getActivity ( ), R.id.nav_host_fragment).navigate (R.id.actionOkRecordSelecDocument, bundle);
             }
         }.start ( );
     }
@@ -330,7 +336,6 @@ public class VideoRecorderFragment extends Fragment {
 
     private ImageButton btnCapture;
     private static MediaRecorder mRecorder;
-    private String urlVideoFile;
     private boolean isCameraActive = false;
     private static TextView textTimerRecord;
     private static TextView textTimerToStart;
@@ -342,6 +347,8 @@ public class VideoRecorderFragment extends Fragment {
     private CountDownTimer countDownTimerRecord;
     private CountDownTimer countDownTimerGeneral;
     private Integer mSensorOrientation;
+    private BDIVConfig config;
+    private String urlVideoFile;
     private void initialSetups() {
         textTittleVideo = getActivity ( ).findViewById (R.id.textTittleVideo);
         // controls video
@@ -379,7 +386,7 @@ public class VideoRecorderFragment extends Fragment {
             mBackgroundThread = null;
             mBackgroundHandler = null;
         } catch (InterruptedException e) {
-            e.printStackTrace ( );
+            // e.printStackTrace(); ( );
         }
     }
 
@@ -397,7 +404,7 @@ public class VideoRecorderFragment extends Fragment {
             if (!mCameraOpenCloseLock.tryAcquire (2500, TimeUnit.MILLISECONDS)) {
                 throw new RuntimeException ("Time out waiting to lock camera opening.");
             }
-            cameraId = manager.getCameraIdList ( )[CameraCharacteristics.LENS_FACING_BACK];
+            String cameraId = manager.getCameraIdList()[CameraCharacteristics.LENS_FACING_BACK];
             // Choose the sizes for camera preview and video recording
             CameraCharacteristics characteristics = manager.getCameraCharacteristics (cameraId);
 
@@ -481,7 +488,7 @@ public class VideoRecorderFragment extends Fragment {
                         }
                     }, mBackgroundHandler);
         } catch (CameraAccessException e) {
-            e.printStackTrace ( );
+            // e.printStackTrace(); ( );
         }
     }
 
@@ -498,7 +505,7 @@ public class VideoRecorderFragment extends Fragment {
             thread.start ( );
             mPreviewSession.setRepeatingRequest (mPreviewBuilder.build ( ), null, mBackgroundHandler);
         } catch (CameraAccessException e) {
-            e.printStackTrace ( );
+            // e.printStackTrace(); ( );
         }
     }
 
@@ -644,13 +651,13 @@ public class VideoRecorderFragment extends Fragment {
 
                 @Override
                 public void onConfigureFailed(@NonNull CameraCaptureSession cameraCaptureSession) {
-                    Log.e (TAG, "onConfigureFailed: Failed");
+                    //Log.e (TAG, "onConfigureFailed: Failed");
                 }
             }, mBackgroundHandler);
         } catch (CameraAccessException | IOException e) {
-            e.printStackTrace ( );
+            // e.printStackTrace(); ( );
         } catch (Exception e) {
-            e.printStackTrace ( );
+            // e.printStackTrace(); ( );
         }
 
     }
@@ -669,7 +676,7 @@ public class VideoRecorderFragment extends Fragment {
             mPreviewSession.stopRepeating ( );
             mPreviewSession.abortCaptures ( );
         } catch (CameraAccessException e) {
-            e.printStackTrace ( );
+            // e.printStackTrace(); ( );
         }
 
         // Stop recording
@@ -677,7 +684,7 @@ public class VideoRecorderFragment extends Fragment {
         mMediaRecorder.reset ( );
         countDownTimerGeneral.cancel ( );
         countDownTimerRecord.cancel ( );
-        ((MyApplication) getActivity ( ).getApplication ( )).setUrlVideo (urlVideoFile);
+        urlVideoFile = urlVideoFile;
     }
 
     /**
