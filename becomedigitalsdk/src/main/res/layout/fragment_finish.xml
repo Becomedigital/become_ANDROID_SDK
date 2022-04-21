@@ -24,7 +24,8 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/succes_upload_image333x369_2x"
-        tools:src="@tools:sample/avatars[7]" />
+        tools:src="@tools:sample/avatars[7]"
+        tools:ignore="ContentDescription" />
 
     <TextView
         android:id="@+id/textCountry"

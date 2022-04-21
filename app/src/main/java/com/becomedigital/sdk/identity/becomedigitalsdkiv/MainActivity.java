@@ -10,6 +10,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.becomedigital.sdk.identity.becomedigitalsdk.MainBDIV;
@@ -21,6 +22,7 @@ import com.becomedigital.sdk.identity.becomedigitalsdk.models.BDIVConfig;
 import com.becomedigital.sdk.identity.becomedigitalsdk.models.ResponseIV;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -46,15 +48,22 @@ public class MainActivity extends AppCompatActivity {
         EditText textClientId = findViewById(R.id.clienidText);
         EditText textContractId = findViewById(R.id.ContractIdText);
         EditText textVlidationType = findViewById(R.id.validationType);
+        EditText textUserId = findViewById(R.id.textUserId);
         Button btnAut = findViewById(R.id.btnAuth);
+        ImageView imgSelfie, imgFront, imgBack;
+        imgSelfie = findViewById(R.id.imgSelfie);
+        imgFront = findViewById(R.id.imgFront);
+        imgBack = findViewById(R.id.imgBack);
         btnAut.setOnClickListener(view -> {
-            String validatiopnTypes = textVlidationType.getText().toString().isEmpty() ? "VIDEO/DNI" : textVlidationType.getText().toString();
+            String validatiopnTypes = textVlidationType.getText().toString().isEmpty() ? "VIDEO/PASSPORT/DNI/LICENSE" : textVlidationType.getText().toString();
             String clientSecret = textClientSecret.getText().toString().isEmpty() ? "FKLDM63GPH89TISBXNZ4YJUE57WRQA25" : textClientSecret.getText().toString();
             String clientId = textClientId.getText().toString().isEmpty() ? "acc_demo" : textClientId.getText().toString();
             String contractId = textContractId.getText().toString().isEmpty() ? "2" : textContractId.getText().toString();
             Date currentTime = Calendar.getInstance().getTime();
             SimpleDateFormat format1 = new SimpleDateFormat("yyyyMMddHHmmssSSS", Locale.getDefault());
             String inActiveDate = format1.format(currentTime);
+            String userId = textUserId.getText().toString().isEmpty() ? inActiveDate : textUserId.getText().toString();
+
 
             BecomeResponseManager.getInstance().startAutentication(MainActivity.this,
                     new BDIVConfig(clientId,
@@ -63,46 +72,35 @@ public class MainActivity extends AppCompatActivity {
                             validatiopnTypes,
                             true,
                             byteArray,
-                            inActiveDate
+                            userId
                     ));
+            
             BecomeResponseManager.getInstance().registerCallback(mCallbackManager, new BecomeInterfaseCallback() {
                 @Override
                 public void onSuccess(final ResponseIV responseIV) {
-                    String id = responseIV.getId();
-                    String created_at = responseIV.getCreated_at();
-                    String company = responseIV.getCompany();
-                    String fullname = responseIV.getFullname();
-                    String birth = responseIV.getBirth();
-                    String document_type = responseIV.getDocument_type();
-                    String document_number = responseIV.getDocument_number();
-                    Boolean face_match = responseIV.getFace_match();
-                    Boolean template = responseIV.getTemplate();
-                    Boolean alteration = responseIV.getAlteration();
-                    Boolean watch_list = responseIV.getWatch_list();
-                    String comply_advantage_result = responseIV.getComply_advantage_result();
-                    String comply_advantage_url = responseIV.getComply_advantage_url();
-                    String verification_status = responseIV.getVerification_status();
-                    String message = responseIV.getMessage();
-                    Integer responseStatus = responseIV.getResponseStatus();
-                    String textFinal = "id: " +
-                            "\ncreated_at: " + created_at +
-                            "\ncompany: " + company +
-                            "\nfullname: " + fullname +
-                            "\nbirth: " + birth +
-                            "\ndocument_type: " + document_type +
-                            "\ndocument_number: " + document_number +
-                            "\nface_match: " + face_match +
-                            "\ntemplate: " + template +
-                            "\nalteration: " + alteration +
-                            "\nwatch_list: " + watch_list +
-                            "\ncomply_advantage_result: " + comply_advantage_result +
-                            "\ncomply_advantage_url: " + comply_advantage_url +
-                            "\nverification_status: " + verification_status +
-                            "\nmessage: " + message +
-                            "\nresponseStatus: " + responseStatus;
+                    String pathToFileSelfie = responseIV.getSelfiImageUrlLocal();
+                    File imgFileSelfie = new File (pathToFileSelfie);
+                    if (imgFileSelfie.exists ( )) {
+                        Bitmap myBitmap = BitmapFactory.decodeFile (imgFileSelfie.getAbsolutePath ( ));
+                        imgSelfie.setImageBitmap (myBitmap);
+                    }
 
-                    textResponse.setText(textFinal);
-                    Log.d("responseIV", textFinal);
+                    String pathToFileFront = responseIV.getFrontImgUrlLocal();
+                    File imgFileFront = new File (pathToFileFront);
+                    if (imgFileFront.exists ( )) {
+                        Bitmap myBitmap = BitmapFactory.decodeFile (imgFileFront.getAbsolutePath ( ));
+                        imgFront.setImageBitmap (myBitmap);
+                    }
+
+                    String pathToFileBack = responseIV.getBackImgUrlLocal();
+                    File imgFileBack = new File (pathToFileBack);
+                    if (imgFileBack.exists ( )) {
+                        Bitmap myBitmap = BitmapFactory.decodeFile (imgFileBack.getAbsolutePath ( ));
+                        imgBack.setImageBitmap (myBitmap);
+                    }
+
+                    textResponse.setText(responseIV.toString());
+//                    //Log.d("responseIV", textFinal);
                 }
 
                 @Override
@@ -114,7 +112,7 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onError(LoginError pLoginError) {
                     textResponse.setText(pLoginError.getMessage());
-                    Log.d("Error", pLoginError.getMessage());
+//                    //Log.d("Error", pLoginError.getMessage());
                 }
 
             });

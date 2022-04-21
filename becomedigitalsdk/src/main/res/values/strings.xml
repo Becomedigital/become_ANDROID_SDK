@@ -11,8 +11,6 @@
     <string name="text_video_intro">Comprobemos que la identificación es tuya, Grabando un video tuyo haciendo círculos con tu nariz</string>
     <string name="text_video_intro_general">Grabar un corto video tipo selfie</string>
     <string name="text_document_intr_general">Capturar o cargar tus documentos, así comprobarás tu identidad</string>
-
-    <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="btn_text_recording_video">Grabar video</string>
     <string name="splitValidationTypes">/</string>
@@ -30,12 +28,12 @@
     <string name="text_btn_intro_doc_galery">Galeria</string>
     <string name="text_save_img">Guardando...</string>
     <string name="text_finish">¡Finalizaste!</string>
-    <string name="text_sub_tittle_finish">Felicidades, la captura de tos datos esta completa</string>
+    <string name="text_sub_tittle_finish">Felicidades, la captura de tus datos esta completa</string>
     <string name="text_cancel">Terminar</string>
     <string name="text_undo">Volver</string>
     <string name="text_sub_tittle_undo">¿Deseas terminar el proceso?</string>
     <string name="text_tittle_undo">¿Estas seguro?</string>
-    <string name="text_loader_init">Iniciando...</string>
+    <string name="text_loader_init">Iniciando…</string>
     <string name="text_video_confirm">¿Realizaste 2 Círculos con tu nariz?</string>
     <string name="terminate_text">Terminar</string>
     <string name="text_retry_previe">No, reintentar</string>
@@ -51,5 +49,9 @@
     <string name="camera_error">This device doesn\'t support Camera2 API.</string>
     <string name="text_time_out_msn">\Se agotó el tiempo de espera. ¿deseas intentarlo nuevamente?</string>
     <string name="retry_send_text">Consultando nuevamente...</string>
+    <string name="text_tittle_selfie">Tómate una selfie para validar tu identidad</string>
+    <string name="text_loader_selfie">Nuestra inteligencia artificial está realizando un análisis biométrico de tu rostro</string>
+    <string name="text_error_path_image_pick">No se puede obtener la ruta del archivo</string>
+    <string name="text_empty_balance">Saldo insuficiente</string>
 
 </resources>
