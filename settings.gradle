@@ -1,2 +1,2 @@
-include ':app', ':becomedigitalsdk'
+include ':app', ':becomedigitalsdkiv'
 rootProject.name='BecomeDigitalSDKIV'
