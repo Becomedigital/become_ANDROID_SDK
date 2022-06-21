@@ -30,6 +30,7 @@ Este es un espacio para conocer a cerca del SDK Android de Become para la valida
 ### Implementación de módulos requeridos
 Cómo primera medida es necesaria la implementacion de los siguientes módulos:
 
+    implementation fileTree(dir: 'libs', include: ['*.aar'])
     implementation 'androidx.appcompat:appcompat:1.2.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.0.1'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
@@ -40,15 +41,14 @@ Cómo primera medida es necesaria la implementacion de los siguientes módulos:
   
 ### Implementación de la SDK Become
        
- 1. Abra el archivo build.gradle dentro del directorio del módulo de su aplicación e incluya las siguientes dependencias en el archivo build.gradle de su aplicación:
- 
-		 implementation 'com.github.Becomedigital:become_ANDROID_SDK:LATEST_VERSION'
-		 
-	Ejemplo:
-		 
-		 implementation 'com.github.Becomedigital:become_ANDROID_SDK:3.1.2'
-		 
- 3. Al realizar los pasos anteriores, debe sincronizar su proyecto con gradle.
+      
+ 1. Descargue la dependencia `becomedigitalsdk.aar` y agréguela en las dependencias binarias locales de su proyecto.
+
+<p align="center">
+  <img src="https://github.com/Becomedigital/become_Android_SDK_Document_Autentication/blob/main/libs.png">
+</p>
+	
+ 2. Al realizar los pasos anteriores, debe sincronizar su proyecto con gradle.
  
  ## Inicialización de la SDK
 En el método onCreate () de su clase de aplicación, inicialice Become utilizando el siguiente fragmento de código:
