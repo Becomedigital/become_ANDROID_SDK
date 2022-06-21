@@ -364,22 +364,23 @@ public class ValidateStatusRest {
                                                         alteration = false,
                                                         watch_list = false;
 
-                                                if (JobjectV.has("face_match")) {
+                                                if (JobjectV.has("face_match") && !JobjectV.isNull("face_match")) {
                                                     if (JobjectV.getBoolean("face_match"))
                                                         face_match = true;
                                                 }
-                                                if (JobjectV.has("template")) {
+                                                if (JobjectV.has("template") && !JobjectV.isNull("template")) {
                                                     if (JobjectV.getBoolean("template"))
                                                         template = true;
                                                 }
-                                                if (JobjectV.has("alteration")) {
+                                                if (JobjectV.has("alteration") && !JobjectV.isNull("alteration")) {
                                                     if (JobjectV.getBoolean("alteration"))
                                                         alteration = true;
                                                 }
-                                                if (JobjectV.has("watch_list")) {
+                                                if (JobjectV.has("watch_list") && !JobjectV.isNull("watch_list")) {
                                                     if (JobjectV.getBoolean("watch_list"))
                                                         watch_list = true ;
                                                 }
+
 
                                                 JSONObject JComplyAdvantage = new JSONObject();
                                                 if (Jobject.has("usercomply_advantageAgent")) {
